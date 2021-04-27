@@ -10,7 +10,7 @@ struct TreeParser {
 
 impl TreeParser {
     fn new() -> TreeParser {
-        TreeParser {
+        Self {
             tree_name_regex: Regex::new(r"^\[[A-Za-z0-9_]+\]$").unwrap(),
             node_regex: Regex::new(r"^(\+ )+[^\+].*$").unwrap(),
             comment_regex: Regex::new(r"^#.*+$").unwrap()
@@ -50,8 +50,7 @@ impl TreeStatement {
 
 fn main() {
     let parser = TreeParser::new();
-    let f = File::open("file.tdf");
-    if let Ok(file) = f {
+    if let Ok(file) = File::open("file.tdf") {
         let reader = BufReader::new(file);
         for l in reader.lines() {
             if let Ok(line) = l {
