@@ -3,23 +3,23 @@ use std::io::{prelude::*, BufReader};
 use regex::Regex;
 
 struct TreeParser {
-    tree_id_regex: Regex,
+    tree_id_matcher: Regex,
     tree_id_finder: Regex,
-    node_regex: Regex,
+    node_matcher: Regex,
     node_finder: Regex,
     node_level_finder: Regex,
-    comment_regex: Regex
+    comment_matcher: Regex
 }
 
 impl TreeParser {
     fn new() -> TreeParser {
         Self {
-            tree_id_regex: Regex::new(r"^\[[A-Za-z0-9_]+\]$").unwrap(),
+            tree_id_matcher: Regex::new(r"^\[[A-Za-z0-9_]+\]$").unwrap(),
             tree_id_finder: Regex::new(r"[A-Za-z0-9_]+").unwrap(),
-            node_regex: Regex::new(r"^(\+ )+[^\+].*$").unwrap(),
+            node_matcher: Regex::new(r"^(\+ )+[^\+].*$").unwrap(),
             node_finder: Regex::new(r"(\+ )+").unwrap(),
             node_level_finder: Regex::new(r"(\+ )").unwrap(),
-            comment_regex: Regex::new(r"^#.*+$").unwrap()
+            comment_matcher: Regex::new(r"^#.*+$").unwrap()
         }
     }
 }
@@ -34,7 +34,7 @@ enum TreeStatement {
 
 impl TreeStatement {
     fn new(statement: &String, parser: &TreeParser) -> TreeStatement {
-        if parser.node_regex.is_match(statement) {
+        if parser.node_matcher.is_match(statement) {
             let n = parser.node_finder.find(statement).unwrap();
             let node = &statement[n.end()..];
             let level_iter = parser.node_level_finder.find_iter(statement);
@@ -42,12 +42,12 @@ impl TreeStatement {
             for _ in level_iter { level += 1 }
             TreeStatement::Node(String::from(node), level)
         }
-        else if parser.tree_id_regex.is_match(statement) {
+        else if parser.tree_id_matcher.is_match(statement) {
             let n = parser.tree_id_finder.find(statement).unwrap();
             let tree_id = &statement[n.start()..n.end()];
             TreeStatement::TreeID(String::from(tree_id))
         }
-        else if parser.comment_regex.is_match(statement) {
+        else if parser.comment_matcher.is_match(statement) {
             TreeStatement::Comment
         }
         else {

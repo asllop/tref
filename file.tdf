@@ -8,8 +8,7 @@
 + + branch_2
 + + + branch_2_1
 + + + + branch_2_1_1
-# Wrong node depth
-+ + + + + wrong_node
++ + + + + + wrong_node
 + + + + branch_2_1_2
 + + + branch_2_2
 + + branch_3
