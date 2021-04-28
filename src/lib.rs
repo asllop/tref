@@ -79,7 +79,7 @@ pub fn parse_tree<'a>(reader: BufReader<impl Read>) -> Result<HashMap<String, Tr
             //TODO: build the tree structure
             match parser.parse_statement(&line) {
                 TreeStatement::TreeID(s)    => println!("tree_id       {}", s),
-                TreeStatement::Node(s, l)   => println!("node          {} ({})", s, l),
+                TreeStatement::Node(s, l)   => println!("node          {} (level: {})", s, l),
                 TreeStatement::Invalid      => return Result::Err(format!("Invalid statement at line {}", i)),
                 _ => {}
             }
@@ -96,5 +96,7 @@ pub fn parse_tree<'a>(reader: BufReader<impl Read>) -> Result<HashMap<String, Tr
 TODO:
 - Genera un dict amb tantes claus com tree names a l'arxiu.
 - Generate tree with default object or user defined. La callback de l'usr rep: node str, parent node i depth.
-- Traversal iterator using DFS and BFS algorithms (https://towardsdatascience.com/4-types-of-tree-traversal-algorithms-d56328450846).
+- Traversal iterator using various algorithms (https://towardsdatascience.com/4-types-of-tree-traversal-algorithms-d56328450846).
+- Find a specific node.
+- Access a specific node by using a path.
 */
