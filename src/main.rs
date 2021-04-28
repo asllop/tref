@@ -68,7 +68,8 @@ struct TreeNode<'a, T> {
     content: T
 }
 
-fn parse_tree(reader: BufReader<File>,  parser: TreeParser) -> Result<(), String> {
+fn parse_tree(reader: BufReader<File>) -> Result<(), String> {
+    let parser =  TreeParser::new();
     let mut i = 0;
     for l in reader.lines() {
         i += 1;
@@ -97,7 +98,7 @@ TODO:
 
 fn main() {
     if let Ok(file) = File::open("file.tdf") {
-        let r = parse_tree(BufReader::new(file), TreeParser::new());
+        let r = parse_tree(BufReader::new(file));
         println!("{:?}", r);
     }
     else {
