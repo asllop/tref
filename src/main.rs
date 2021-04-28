@@ -64,7 +64,7 @@ impl TreeStatement {
     }
 }
 
-fn parse_tree(reader: BufReader<File>,  parser: &TreeParser) -> Result<String, String> {
+fn parse_tree(reader: BufReader<File>,  parser: TreeParser) -> Result<(), String> {
     let mut i = 0;
     for l in reader.lines() {
         i += 1;
@@ -81,7 +81,7 @@ fn parse_tree(reader: BufReader<File>,  parser: &TreeParser) -> Result<String, S
         }
     }
     //TODO: return the tree structure
-    Result::Ok("".to_string())
+    Result::Ok(())
 }
 
 /*
@@ -89,13 +89,12 @@ TODO:
 - Genera un dict amb tantes claus com tree names a l'arxiu.
 - Generate simple tree with default object or user defined. La callback de l'usr rep: node str, parent node i depth.
 - Generate reversible tree, nodes have reference of parent.
-- DFS and BFS algorithms.
+- Traversal iterator using DFS and BFS algorithms (https://towardsdatascience.com/4-types-of-tree-traversal-algorithms-d56328450846).
 */
 
 fn main() {
-    let parser = TreeParser::new();
     if let Ok(file) = File::open("file.tdf") {
-        let r = parse_tree(BufReader::new(file), &parser);
+        let r = parse_tree(BufReader::new(file), TreeParser::new());
         println!("{:?}", r);
     }
     else {
