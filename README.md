@@ -36,41 +36,49 @@ Filename: `example_1.tref`
 
 This example has all the elements a TREF file can contain: comments (lines starting by `#`), tree names (lines starting by `[` and ending by `]`), and tree nodes (lines starting by any number of `+` divided by a simple space).
 
-A valid TREF file must meet the following rules:
+Node hierarchy is represented using pairs of `+` and `space`. Each pair represents a node level. In the example, `root_node` is of level 1, `child_1` is of level 2, `child_1_2` of level 3, etc.
+
+A node (`A`) is considered to be descendant of another (`B`) if `A` is located below `B` (immediately or not), `A` has a higher level than `B`, and no other nodes of the same level of `B` are in between.
+
+A valid TREF file meets the following rules:
 
 1. Each line ended by a newline represents a statement.
 2. Empty statements are allowed (with spaces, tabs and newlines).
 3. A comment statement must start with `#`, no spaces or tabs are allowed before it. After it any character is allowed.
-4. Tree names must be enclosed between brackets (`[]`) and no spaces or tabs are allowed. The tree name can only have letters (`A-Z`, `a-z`), numbers (`0-9`) and underline (`_`).
-5. Tree nodes must start by, at least, one `+` followed by a space. Each pair (`+`, space) represents a node level. After the last space it comes the node name, that can contain any character (even spaces or tabs), with the only limitation that the first character can't be a `+`.
-6. There must be at least one tree name that comes before the root node.
+4. Tree names must be enclosed between brackets (`[]`) and no spaces or tabs are allowed. The tree name can only have letters (`A-Z`, `a-z`), numbers (`0-9`) and underlines (`_`).
+5. Tree nodes must start by, at least, one `+` followed by a space. After the last space it comes the node name, that can contain any character (even spaces or tabs), with the only limitation that the first character can't be a `+`.
+6. There must be one tree name per tree, and it must come before the root node.
 7. A file can contain multiple trees, each one properly labeled with a tree name.
-8. Node levels must be consecutive, a node of level N can only contain nodes of level N+1.
+8. Empty trees are permitted and are represented by a tree name with no nodes after it.
+9. Node levels must be consecutive, a node of level N can only contain nodes of level N+1.
+10. Any line that is not empty, a comment, a tree name or a node, is considered invalid.
 
-Anything else is considered an invalid statement. We have seen a correct example, let's see some wrong ones and why they are **incorrect**.
+We have seen a correct example, let's see some wrong ones and why they are **incorrect**.
 
 Filename: `example_2.tref`
 
 ```
-# This is a good comment
+# WARNING: this file is invalid
    # this comment is incorrect
 ```
 
-The `example_2.tref` is incorrect for two reasons: contains an invalid comment statement (line 2) and doesn't have at least one tree name, that is mandatory.
+It's incorrect because it contains an invalid comment statement at line 2, it doesn't start by a `#`.
 
 Filename: `example_3.tref`
 
 ```
+# WARNING: this file is invalid
 [ my_tree]
 
  [my_tree_2]
 ```
 
-The `example_3.tref` has two tree names, but both are invalid, because the fist one contains forbidden characters (a space inside the brackets), and the second doesn't start by a `[` (it starts by a space).
+It has two tree names, but both are invalid, because the fist one contains forbidden characters (a space inside the brackets), and the second doesn't start by a `[` (it starts by a space).
 
 Filename: `example_4.tref`
 
 ```
+# WARNING: this file is invalid
 [my_tree]
 + root_node
 + + child_1
@@ -78,15 +86,36 @@ Filename: `example_4.tref`
  + + child_3
 ```
 
-The `example_4.tref` is invalid because it has a node name that starts by `+` (line 4) and a node statement that doesn't start by a `+` (line 5).
+This one is invalid because it has a node name that starts by `+` (line 5) and a node statement that doesn't start by a `+` (line 6).
 
 Filename: `example_5.tref`
 
 ```
+# WARNING: this file is invalid
 [my_tree]
 + root_node
 + + child_1
 + + + + child_1_1
 ```
 
-The `example_5.tref` is invalid because it `child_1` contains a child (`child_1_1`) of a non consecutive level (is should be level 3 but is level 4).
+The `child_1` contains a node (`child_1_1`) of a non consecutive level (is should be level 3 but is level 4).
+
+## Dialects
+
+The node name format in TREF is intentionally permissive. After the initial plus signs, it basically accepts anything, any character, spaces, brackets... whatever. And the reason is **user defined dialects**.
+
+Imagine we have an application in which the weight of each vertex (node connection) is important. TREF doesn't provide a way to assign values to vertex, but the user can define a specific format in the node that can. It could be something like:
+
+Filename: `example_6.tref`
+
+```
+[my_tree_dialect]
+
++ root_node
++ + 27:child_1
++ + + 99:child_1_1
++ + + 56:child_1_2
++ + 5:child_2
+```
+
+When parsed, the user will receive a node where the identifier is a string like `99:child_1_1`, that will be able to parse and generate a custom object to fill the tree structure.

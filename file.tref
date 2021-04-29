@@ -11,15 +11,3 @@
 + + + + branch_2_1_2
 + + + branch_2_2
 + + branch_3
-
-[my_wrong_tree]
-
-+ base
-+ + branch_1
-+ + branch_2
-+ + + branch_2_1
-+ + + + branch_2_1_1
-+ + + + + + wrong_node_level
-+ + + + branch_2_1_2
-+ + + branch_2_2
-+ + branch_3

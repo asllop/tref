@@ -62,6 +62,39 @@ impl TreeParser {
     }
 }
 
+struct NodeStack {
+    buffer: Vec<TreeStatement>
+}
+
+impl NodeStack {
+    fn new() -> Self {
+        Self {
+            buffer: Vec::new()
+        }
+    }
+
+    fn push(&mut self, obj: TreeStatement) {
+        self.buffer.push(obj);
+    }
+
+    fn pop(&mut self) -> Option<TreeStatement> {
+        self.buffer.pop()
+    }
+
+    fn top(&mut self) -> Option<&TreeStatement> {
+        self.buffer.get(self.buffer.len())
+    }
+
+    fn top_level(&mut self) -> Option<u32> {
+        if let Some(ts) = self.top() {
+            if let TreeStatement::Node(_, l) = ts {
+                return Some(*l);
+            }
+        }
+        None
+    }
+}
+
 #[derive(Debug)]
 pub struct TreeNode<'a> {
     pub children: Vec<TreeNode<'a>>,
@@ -72,14 +105,28 @@ pub struct TreeNode<'a> {
 
 pub fn parse_tree<'a>(reader: BufReader<impl Read>) -> Result<HashMap<String, TreeNode<'a>>, String> {
     let parser =  TreeParser::new();
+    let mut stack = NodeStack::new();
     let mut i = 0;
+    let mut prev_level:u32 = 0;
+
     for l in reader.lines() {
         i += 1;
         if let Ok(line) = l {
             //TODO: build the tree structure
             match parser.parse_statement(&line) {
                 TreeStatement::TreeID(s)    => println!("tree_id       {}", s),
-                TreeStatement::Node(s, l)   => println!("node          {} (level: {})", s, l),
+                TreeStatement::Node(s, l)   => {
+                    println!("node          {} (level: {})", s, l);
+                    //TODO: el nou nivell ha de ser igual que l'actual, menor o +1.
+                    //TODO: si es major, aleshores el node anterior es el nostre parent
+                    //TODO: si es igual, hem de cercar el pare (guardem una variable amb el node de nivell anterior)
+                    //TODO: 
+                    if l > prev_level + 1 {
+                        return Result::Err(format!("Invalid node level at line {}", i));
+                    }
+
+                    prev_level = l;
+                },
                 TreeStatement::Invalid      => return Result::Err(format!("Invalid statement at line {}", i)),
                 _ => {}
             }
@@ -99,4 +146,5 @@ TODO:
 - Traversal iterator using various algorithms (https://towardsdatascience.com/4-types-of-tree-traversal-algorithms-d56328450846).
 - Find a specific node.
 - Access a specific node by using a path.
+- Allow using the BufReader directly to read data from the tree, instead of parsing and generating a model in mem. For very big trees.
 */
