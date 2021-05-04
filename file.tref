@@ -11,3 +11,15 @@
 + + + + branch_2_1_2
 + + + branch_2_2
 + + branch_3
+
+[my_tree_2]
+
++ base
++ + branch_1
++ + branch_2
++ + + branch_2_1
++ + + + branch_2_1_1
++ + + + + branch_2_1_1_1
++ + branch_3
+
+#TODO: create a tree with multiple root nodes, to see how to detect and thow error

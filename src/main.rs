@@ -8,7 +8,7 @@ fn main() {
     let file_name = if let Some(f_n) = args.get(1) { &f_n[..] } else { "file.tref" };
 
     if let Ok(file) = File::open(file_name) {
-        let r = tref::parse_tree(BufReader::new(file));
+        let r = tref::build_tree(BufReader::new(file));
         println!("{:?}", r);
     }
     else {
