@@ -1,123 +1,127 @@
 use std::io::{prelude::*, BufReader};
 use std::collections::HashMap;
-use regex::Regex;
 
-enum TreeStatement {
-    TreeID(String),
-    Node(String, u32),
-    Comment,
-    Empty,
-    Invalid
-}
+mod parser {
+    use regex::Regex;
 
-struct TreeParser {
-    tree_id_matcher: Regex,
-    tree_id_finder: Regex,
-    node_matcher: Regex,
-    node_finder: Regex,
-    node_level_finder: Regex,
-    comment_matcher: Regex
-}
-
-impl TreeParser {
-    fn new() -> Self {
-        Self {
-            tree_id_matcher: Regex::new(r"^\[[A-Za-z0-9_]+\]$").unwrap(),
-            tree_id_finder: Regex::new(r"[A-Za-z0-9_]+").unwrap(),
-            node_matcher: Regex::new(r"^(\+ )+[^\+].*$").unwrap(),
-            node_finder: Regex::new(r"(\+ )+").unwrap(),
-            node_level_finder: Regex::new(r"(\+ )").unwrap(),
-            comment_matcher: Regex::new(r"^#.*+$").unwrap()
-        }
+    pub enum TreeStatement {
+        TreeID(String),
+        Node(String, u32),
+        Comment,
+        Empty,
+        Invalid
     }
-
-    fn parse_statement(&self, statement: &String) -> TreeStatement {
-        if self.node_matcher.is_match(statement) {
-            let n = self.node_finder.find(statement).unwrap();
-            let node = &statement[n.end()..];
-            let level_iter = self.node_level_finder.find_iter(statement);
-            let mut level = 0;
-            for _ in level_iter { level += 1 }
-            TreeStatement::Node(String::from(node), level)
-        }
-        else if self.tree_id_matcher.is_match(statement) {
-            let n = self.tree_id_finder.find(statement).unwrap();
-            let tree_id = &statement[n.start()..n.end()];
-            TreeStatement::TreeID(String::from(tree_id))
-        }
-        else if self.comment_matcher.is_match(statement) {
-            TreeStatement::Comment
-        }
-        else {
-            if statement.len() == 0 {
-                TreeStatement::Empty
+    
+    pub struct TreeParser {
+        tree_id_matcher: Regex,
+        tree_id_finder: Regex,
+        node_matcher: Regex,
+        node_finder: Regex,
+        node_level_finder: Regex,
+        comment_matcher: Regex
+    }
+    
+    impl TreeParser {
+        pub fn new() -> Self {
+            Self {
+                tree_id_matcher: Regex::new(r"^\[[A-Za-z0-9_]+\]$").unwrap(),
+                tree_id_finder: Regex::new(r"[A-Za-z0-9_]+").unwrap(),
+                node_matcher: Regex::new(r"^(\+ )+[^\+].*$").unwrap(),
+                node_finder: Regex::new(r"(\+ )+").unwrap(),
+                node_level_finder: Regex::new(r"(\+ )").unwrap(),
+                comment_matcher: Regex::new(r"^#.*+$").unwrap()
             }
-            else if statement.trim().len() == 0 {
-                TreeStatement::Empty
+        }
+    
+        pub fn parse_statement(&self, statement: &String) -> TreeStatement {
+            if self.node_matcher.is_match(statement) {
+                let n = self.node_finder.find(statement).unwrap();
+                let node = &statement[n.end()..];
+                let level_iter = self.node_level_finder.find_iter(statement);
+                let mut level = 0;
+                for _ in level_iter { level += 1 }
+                TreeStatement::Node(String::from(node), level)
+            }
+            else if self.tree_id_matcher.is_match(statement) {
+                let n = self.tree_id_finder.find(statement).unwrap();
+                let tree_id = &statement[n.start()..n.end()];
+                TreeStatement::TreeID(String::from(tree_id))
+            }
+            else if self.comment_matcher.is_match(statement) {
+                TreeStatement::Comment
             }
             else {
-                TreeStatement::Invalid
-            }
-        }
-    }
-}
-
-#[derive(Debug)]
-struct NodeStack {
-    buffer: Vec<NodeStackContent>
-}
-
-#[derive(Debug)]
-struct NodeStackContent {
-    node: String,
-    level: u32
-}
-
-impl NodeStack {
-    fn new() -> Self {
-        Self {
-            buffer: Vec::new()
-        }
-    }
-
-    fn push(&mut self, obj: NodeStackContent) {
-        self.buffer.push(obj);
-    }
-
-    fn pop(&mut self) -> Option<NodeStackContent> {
-        self.buffer.pop()
-    }
-
-    fn pop_parent(&mut self, level: u32) -> Option<NodeStackContent> {
-        //obtain data from stack until we get one node with a level lower than "level"
-        loop {
-            let n = self.pop();
-            if let Some(n_node) = n {
-                if n_node.level < level {
-                    return Some(n_node);
+                if statement.len() == 0 {
+                    TreeStatement::Empty
+                }
+                else if statement.trim().len() == 0 {
+                    TreeStatement::Empty
+                }
+                else {
+                    TreeStatement::Invalid
                 }
             }
-            else {
-                return None;
-            }
         }
-
-    }
-
-    fn flush(&mut self) {
-        self.buffer.truncate(0);
-    }
-
-    fn top(&mut self) -> Option<&NodeStackContent> {
-        self.buffer.last()
     }
 }
 
-impl NodeStackContent {
-    fn new(node: &String, level: u32) -> Self {
-        Self {
-            node: String::from(node),
-            level
+mod stack {
+    #[derive(Debug)]
+    pub struct NodeStack {
+        buffer: Vec<NodeStackContent>
+    }
+
+    #[derive(Debug)]
+    pub struct NodeStackContent {
+        pub node: String,
+        level: u32
+    }
+
+    impl NodeStack {
+        pub fn new() -> Self {
+            Self {
+                buffer: Vec::new()
+            }
+        }
+
+        pub fn push(&mut self, obj: NodeStackContent) {
+            self.buffer.push(obj);
+        }
+
+        pub fn pop(&mut self) -> Option<NodeStackContent> {
+            self.buffer.pop()
+        }
+
+        pub fn pop_parent(&mut self, level: u32) -> Option<NodeStackContent> {
+            // Obtain data from stack until we get one node with a level lower than "level"
+            loop {
+                let n = self.pop();
+                if let Some(n_node) = n {
+                    if n_node.level < level {
+                        return Some(n_node);
+                    }
+                }
+                else {
+                    return None;
+                }
+            }
+        }
+
+        pub fn flush(&mut self) {
+            self.buffer.truncate(0);
+        }
+
+        pub fn top(&mut self) -> Option<&NodeStackContent> {
+            self.buffer.last()
+        }
+    }
+
+    impl NodeStackContent {
+        pub fn new(node: &String, level: u32) -> Self {
+            Self {
+                node: String::from(node),
+                level
+            }
         }
     }
 }
@@ -127,7 +131,6 @@ pub struct TreeNode<'a> {
     pub children: Vec<TreeNode<'a>>,
     pub level: u32,
     pub parent: Option<&'a TreeNode<'a>>,
-    //TODO: make the content generic type
     pub content: String
 }
 
@@ -141,9 +144,19 @@ pub struct LevelTreeNode<'a> {
 }
 */
 
+/*
+Alternative structure for Tree:
+
+- An array of structs (NodeStruct)
+- The pos 0 is always the root.
+- The NodeStruct contains node name, and an array of node positions, which are array positions where the childs are located.
+- This way we don't have references that can hanging references.
+- In the stack, the NodeStackContent contains an array position to the NodeStruct and a level.
+ */
+
 pub fn build_tree<'a>(reader: BufReader<impl Read>) -> Result<HashMap<String, TreeNode<'a>>, String> {
-    let parser =  TreeParser::new();
-    let mut stack = NodeStack::new();
+    let parser =  parser::TreeParser::new();
+    let mut stack = stack::NodeStack::new();
     let mut i = 0;
     let mut prev_level:u32 = 0;
     let mut trees: HashMap<String, TreeNode<'a>> = HashMap::new();
@@ -155,13 +168,13 @@ pub fn build_tree<'a>(reader: BufReader<impl Read>) -> Result<HashMap<String, Tr
         if let Ok(line) = l {
             let statement = parser.parse_statement(&line);
             match statement {
-                TreeStatement::Invalid => return Result::Err(format!("Invalid statement at line {}", i)),
-                TreeStatement::TreeID(tree_id) => {
+                parser::TreeStatement::Invalid => return Result::Err(format!("Invalid statement at line {}", i)),
+                parser::TreeStatement::TreeID(tree_id) => {
                     println!("tree_id       {}", tree_id);
                     stack.flush();
                     current_tree_id = tree_id;
                 }
-                TreeStatement::Node(content, level) => {
+                parser::TreeStatement::Node(content, level) => {
                     println!("node          {} (level: {})", content, level);
 
                     if level > prev_level + 1 {
@@ -176,7 +189,7 @@ pub fn build_tree<'a>(reader: BufReader<impl Read>) -> Result<HashMap<String, Tr
                             return Result::Err(format!("Multiple root nodes at line {}", i));
                         }
 
-                        stack.push(NodeStackContent::new(&content, level));
+                        stack.push(stack::NodeStackContent::new(&content, level));
 
                         let root_node = TreeNode {
                             children: vec!(),
@@ -196,7 +209,7 @@ pub fn build_tree<'a>(reader: BufReader<impl Read>) -> Result<HashMap<String, Tr
                             return Result::Err(format!("Couldn't find a parent at line {}", i));
                         }
 
-                        stack.push(NodeStackContent::new(&content, level));
+                        stack.push(stack::NodeStackContent::new(&content, level));
                         //TODO: attach node to parent
                     }
 
