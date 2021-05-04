@@ -151,6 +151,21 @@ mod tree {
         level: u32,
         node_positions: Vec<u32>
     }
+
+    impl TreeNode {
+        pub fn new(content: &String, level: u32, parent_position: Option<u32>) -> Self {
+            Self {
+                content: String::from(content),
+                level,
+                parent_position,
+                children: vec!()
+            }
+        }
+
+        pub fn new_root(content: &String) -> Self {
+            Self::new(content, 1, None)
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -197,12 +212,7 @@ impl Forest {
 
                             // Create a new tree and put root node
                             let mut tree = tree::Tree { nodes: vec!() };
-                            tree.nodes.push(tree::TreeNode {
-                                content: String::from(&content),
-                                level,
-                                parent_position: None,
-                                children: vec!()
-                            });
+                            tree.nodes.push(tree::TreeNode::new_root(&content));
                             forest.trees.insert(String::from(&current_tree_id), tree);
     
                             // Put node reference on stack
@@ -213,12 +223,7 @@ impl Forest {
                             if let Some(parent_node_ref) = stack.pop_parent(level) {
                                 if let Some(tree) = forest.trees.get_mut(&current_tree_id) {
                                     // Put new node in the tree
-                                    tree.nodes.push(tree::TreeNode {
-                                        content: String::from(&content),
-                                        level,
-                                        parent_position: Some(parent_node_ref.tree_position),
-                                        children: vec!()
-                                    });
+                                    tree.nodes.push(tree::TreeNode::new(&content, level, Some(parent_node_ref.tree_position)));
                                     let new_node_position = tree.nodes.len() as u32 - 1;
                                     // Attach node to parent
                                     if let Some(parent_node) = tree.nodes.get_mut(parent_node_ref.tree_position as usize) {
