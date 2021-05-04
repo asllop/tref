@@ -210,24 +210,24 @@ impl Forest {
                         }
                         else {
                             // Somebody's child node
-                            if let Some(parent_node) = stack.pop_parent(level) {
+                            if let Some(parent_node_ref) = stack.pop_parent(level) {
                                 if let Some(tree) = forest.trees.get_mut(&current_tree_id) {
                                     // Put new node in the tree
                                     tree.nodes.push(tree::TreeNode {
                                         content: String::from(&content),
                                         level,
-                                        parent_position: Some(parent_node.tree_position),
+                                        parent_position: Some(parent_node_ref.tree_position),
                                         children: vec!()
                                     });
                                     let new_node_position = tree.nodes.len() as u32 - 1;
                                     // Attach node to parent
-                                    if let Some(parent_node_real) = tree.nodes.get_mut(parent_node.tree_position as usize) {
-                                        parent_node_real.children.push(new_node_position);
-                                        println!("My parent is {}", parent_node_real.content);
+                                    if let Some(parent_node) = tree.nodes.get_mut(parent_node_ref.tree_position as usize) {
+                                        parent_node.children.push(new_node_position);
+                                        println!("My parent is {}", parent_node.content);
                                     }
 
                                     // Return parent node reference to stack
-                                    stack.push(parent_node);
+                                    stack.push(parent_node_ref);
                                     // Push new node reference to stack
                                     stack.push(stack::NodeStackContent::new(level, new_node_position));
                                 }
