@@ -225,15 +225,21 @@ impl Forest {
                                         parent_node.children.push(new_node_position);
                                         println!("My parent is {}", parent_node.content);
                                     }
+                                    else {
+                                        return Result::Err(format!("Couldn't find a parent node at line {}", i));
+                                    }
 
                                     // Return parent node reference to stack
                                     stack.push(parent_node_ref);
                                     // Push new node reference to stack
                                     stack.push(stack::NodeStackContent::new(level, new_node_position));
                                 }
+                                else {
+                                    return Result::Err(format!("Couldn't find tree at line {}", i));
+                                }
                             }
                             else {
-                                return Result::Err(format!("Couldn't find a parent at line {}", i));
+                                return Result::Err(format!("Couldn't find a parent ref at line {}", i));
                             }
                         }
     
