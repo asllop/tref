@@ -168,30 +168,34 @@ struct TreeNode {
 }
 
 #[derive(Debug)]
-pub struct Tree {
+struct Tree {
     nodes: Vec<TreeNode>
+}
+
+#[derive(Debug)]
+pub struct Forest {
+    trees: HashMap<String, Tree>
 }
 
 //TODO: create type Forest to encapsulate the HashMap that contains the "new" method that generates the tree structure
 
-impl Tree {
-    pub fn build(reader: BufReader<impl Read>) -> Result<HashMap<String, Self>, String> {
-        let parser =  parser::TreeParser::new();
+impl Forest {
+    pub fn new(reader: BufReader<impl Read>) -> Result<Self, String> {
+        let parser = parser::TreeParser::new();
         let mut stack = stack::NodeStack::new();
         let mut i = 0;
         let mut prev_level:u32 = 0;
         let mut current_tree_id = String::new();
-        let mut forest = HashMap::new();
-        //let mut tree = Tree { nodes: vec!() };
+        let mut forest = Forest { trees: HashMap::new() };
     
         for l in reader.lines() {
             i += 1;
-            println!("----------------");
             if let Ok(line) = l {
                 let statement = parser.parse_statement(&line);
                 match statement {
                     parser::TreeStatement::Invalid => return Result::Err(format!("Invalid statement at line {}", i)),
                     parser::TreeStatement::TreeID(tree_id) => {
+                        println!("-------------------------");
                         println!("tree_id       {}", tree_id);
                         stack.flush();
                         current_tree_id = tree_id;
@@ -219,7 +223,7 @@ impl Tree {
                                 parent_position: None,
                                 children: vec!()
                             });
-                            forest.insert(String::from(&current_tree_id), tree);
+                            forest.trees.insert(String::from(&current_tree_id), tree);
     
                             // Put node reference on stack
                             stack.push(stack::NodeStackContent::new(&content, level, 0));
@@ -229,7 +233,7 @@ impl Tree {
                             if let Some(parent_node) = stack.pop_parent(level) {
                                 println!("My parent is {}", parent_node.node);
                                 
-                                if let Some(tree) = forest.get_mut(&current_tree_id) {
+                                if let Some(tree) = forest.trees.get_mut(&current_tree_id) {
                                     // Put new node in the tree
                                     tree.nodes.push(TreeNode {
                                         content: String::from(&content),
@@ -263,8 +267,6 @@ impl Tree {
                return Result::Err(format!("Could not read line at {}", i));
             }
         }
-    
-        println!("{:#?}", stack);
     
         Result::Ok(forest)
     }    
