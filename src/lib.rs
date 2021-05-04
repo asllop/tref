@@ -73,8 +73,6 @@ mod stack {
 
     #[derive(Debug)]
     pub struct NodeStackContent {
-        //TODO: remove "node" field, not needed
-        pub node: String,
         level: u32,
         pub tree_position: u32
     }
@@ -119,9 +117,8 @@ mod stack {
     }
 
     impl NodeStackContent {
-        pub fn new(node: &String, level: u32, tree_position: u32) -> Self {
+        pub fn new(level: u32, tree_position: u32) -> Self {
             Self {
-                node: String::from(node),
                 level,
                 tree_position
             }
@@ -130,34 +127,11 @@ mod stack {
 }
 
 /*
-#[derive(Debug)]
-pub struct TreeNode<'a> {
-    pub children: Vec<TreeNode<'a>>,
-    pub level: u32,
-    pub parent: Option<&'a TreeNode<'a>>,
-    pub content: String
-}
+TODO:
+Create a data structure for level by level access. This struct makes reference to the Tree struct.
+Will contain one position of an array per level, and each position will contain references to all nodes of that level.
+Only for Breadth-first trasverse
 */
-
-//Data structure for level by level access. This struct makes reference to the TreeNode struct, that is the main structure to hold the nodes and the tree.
-// only for Breadth-first trasverse
-/*
-#[derive(Debug)]
-pub struct LevelTreeNode<'a> {
-    pub nodes: Vec<Option<&'a TreeNode<'a>>>,
-    pub level: u32
-}
-*/
-
-/*
-Alternative structure for Tree:
-
-- An array of structs (NodeStruct)
-- The pos 0 is always the root.
-- The NodeStruct contains node name, and an array of node positions, which are array positions where the childs are located.
-- This way we don't have references that can hanging references.
-- In the stack, the NodeStackContent contains an array position to the NodeStruct and a level.
- */
 
 #[derive(Debug)]
 struct TreeNode {
@@ -176,8 +150,6 @@ struct Tree {
 pub struct Forest {
     trees: HashMap<String, Tree>
 }
-
-//TODO: create type Forest to encapsulate the HashMap that contains the "new" method that generates the tree structure
 
 impl Forest {
     pub fn new(reader: BufReader<impl Read>) -> Result<Self, String> {
@@ -226,13 +198,11 @@ impl Forest {
                             forest.trees.insert(String::from(&current_tree_id), tree);
     
                             // Put node reference on stack
-                            stack.push(stack::NodeStackContent::new(&content, level, 0));
+                            stack.push(stack::NodeStackContent::new(level, 0));
                         }
                         else {
                             // Somebody's child node
                             if let Some(parent_node) = stack.pop_parent(level) {
-                                println!("My parent is {}", parent_node.node);
-                                
                                 if let Some(tree) = forest.trees.get_mut(&current_tree_id) {
                                     // Put new node in the tree
                                     tree.nodes.push(TreeNode {
@@ -245,12 +215,13 @@ impl Forest {
                                     // Attach node to parent
                                     if let Some(parent_node_real) = tree.nodes.get_mut(parent_node.tree_position as usize) {
                                         parent_node_real.children.push(new_node_position);
+                                        println!("My parent is {}", parent_node_real.content);
                                     }
 
-                                    // Return parent reference node to stack
+                                    // Return parent node reference to stack
                                     stack.push(parent_node);
                                     // Push new node reference to stack
-                                    stack.push(stack::NodeStackContent::new(&content, level, new_node_position));
+                                    stack.push(stack::NodeStackContent::new(level, new_node_position));
                                 }
                             }
                             else {
@@ -274,10 +245,9 @@ impl Forest {
 
 /*
 TODO:
-- Genera un dict amb tantes claus com tree names a l'arxiu.
 - Generate tree with default object or user defined. La callback de l'usr rep: node str, parent node i depth.
-- Traversal iterator using various algorithms (https://towardsdatascience.com/4-types-of-tree-traversal-algorithms-d56328450846 , https://en.wikipedia.org/wiki/Tree_traversal).
-- Find a specific node.
+- Create iterators to traverse the tree using various algorithms (https://towardsdatascience.com/4-types-of-tree-traversal-algorithms-d56328450846 , https://en.wikipedia.org/wiki/Tree_traversal).
+- Find a specific node, starting on any node or root.
 - Access a specific node by using a path.
 - Allow using the BufReader directly to read data from the tree, instead of parsing and generating a model in mem. For very big trees.
 */
