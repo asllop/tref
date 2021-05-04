@@ -9,7 +9,7 @@ fn main() {
 
     if let Ok(file) = File::open(file_name) {
         let r = tref::build_tree(BufReader::new(file));
-        println!("{:?}", r);
+        println!("{:#?}", r);
     }
     else {
         println!("Could not read file");

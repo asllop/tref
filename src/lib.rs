@@ -84,18 +84,14 @@ impl NodeStack {
         self.buffer.push(obj);
     }
 
-    fn pop(&mut self, skip: u32) -> Option<NodeStackContent> {
-        //remove "skip" elements and then pop
-        if self.buffer.len() - skip as usize > 0 {
-            self.buffer.truncate(self.buffer.len() - skip as usize);
-        }
+    fn pop(&mut self) -> Option<NodeStackContent> {
         self.buffer.pop()
     }
 
     fn pop_parent(&mut self, level: u32) -> Option<NodeStackContent> {
         //obtain data from stack until we get one node with a level lower than "level"
         loop {
-            let n = self.pop(0);
+            let n = self.pop();
             if let Some(n_node) = n {
                 if n_node.level < level {
                     return Some(n_node);
@@ -111,20 +107,10 @@ impl NodeStack {
     fn flush(&mut self) {
         self.buffer.truncate(0);
     }
-/*
-    fn top(&mut self) -> Option<&TreeNode<'a>> {
+
+    fn top(&mut self) -> Option<&NodeStackContent> {
         self.buffer.last()
     }
-
-    fn top_level(&mut self) -> Option<u32> {
-        if let Some(ts) = self.top() {
-            if let TreeStatement::Node(_, l) = ts {
-                return Some(*l);
-            }
-        }
-        None
-    }
-*/
 }
 
 impl NodeStackContent {
@@ -160,13 +146,8 @@ pub fn build_tree<'a>(reader: BufReader<impl Read>) -> Result<HashMap<String, Tr
     let mut stack = NodeStack::new();
     let mut i = 0;
     let mut prev_level:u32 = 0;
-    let mut root_node = TreeNode {
-        children: vec!(),
-        level: 0,
-        parent: None,
-        content: String::new()
-    };
-    let mut previous_node = NodeStackContent::new(&String::new(), 0);
+    let mut trees: HashMap<String, TreeNode<'a>> = HashMap::new();
+    let mut current_tree_id = String::new();
 
     for l in reader.lines() {
         i += 1;
@@ -178,6 +159,7 @@ pub fn build_tree<'a>(reader: BufReader<impl Read>) -> Result<HashMap<String, Tr
                 TreeStatement::TreeID(tree_id) => {
                     println!("tree_id       {}", tree_id);
                     stack.flush();
+                    current_tree_id = tree_id;
                 }
                 TreeStatement::Node(content, level) => {
                     println!("node          {} (level: {})", content, level);
@@ -187,66 +169,36 @@ pub fn build_tree<'a>(reader: BufReader<impl Read>) -> Result<HashMap<String, Tr
                     }
 
                     if level == 1 {
-                        //Root node
+                        // Root node
                         println!("Root node");
+                        
+                        if let Some(_) = stack.top() {
+                            return Result::Err(format!("Multiple root nodes at line {}", i));
+                        }
+
                         stack.push(NodeStackContent::new(&content, level));
-                        root_node = TreeNode {
+
+                        let root_node = TreeNode {
                             children: vec!(),
                             level: level,
                             parent: None,
                             content: content
                         };
+                        trees.insert(String::from(&current_tree_id), root_node);
                     }
                     else {
-                        //let top_stack = stack.pop(0);
+                        // Somebody's child node
                         if let Some(parent_node) = stack.pop_parent(level) {
                             println!("My parent is {}", parent_node.node);
                             stack.push(parent_node);
                         }
                         else {
-                            println!("Not found a parent");
+                            return Result::Err(format!("Couldn't find a parent at line {}", i));
                         }
 
                         stack.push(NodeStackContent::new(&content, level));
+                        //TODO: attach node to parent
                     }
-
-                    /*
-                    let top_stack = stack.pop(0);
-
-                    if let Some(top_stack_node) = top_stack {
-                        println!("Somebody's child");
-
-                        if top_stack_node.level == level {
-                            //TODO: Siblings, do not get back to stack
-                            println!("Siblings");
-                            println!("My parent is {}", top_stack_node.node);
-                        }
-                        else if level < top_stack_node.level  {
-                            //TODO: this branch ends
-                            println!("Branch ends");
-                            stack.push(top_stack_node);
-                        }
-                        else {
-                            println!("Continue the branch");
-                            println!("My parent is {}", top_stack_node.node);
-                            stack.push(top_stack_node);
-                        }
-                        
-                        stack.push(NodeStackContent::new(&content, level));
-
-                        previous_node = NodeStackContent::new(&content, level);
-                    }
-                    else {
-                        println!("Root node");
-                        stack.push(NodeStackContent::new(&content, level));
-                        root_node = TreeNode {
-                            children: vec!(),
-                            level: level,
-                            parent: None,
-                            content: content
-                        };
-                    }
-                    */
 
                     prev_level = level;
                 },
@@ -260,8 +212,7 @@ pub fn build_tree<'a>(reader: BufReader<impl Read>) -> Result<HashMap<String, Tr
 
     println!("{:#?}", stack);
 
-    //TODO: return the tree structure
-    Result::Ok(HashMap::new())
+    Result::Ok(trees)
 }
 
 /*
