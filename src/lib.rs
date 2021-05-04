@@ -132,23 +132,31 @@ Create a data structure for level by level access. This struct makes reference t
 Will contain one position of an array per level, and each position will contain references to all nodes of that level.
 Only for Breadth-first trasverse
 */
+mod tree {
+    #[derive(Debug)]
+    pub struct TreeNode {
+        pub content: String,
+        pub level: u32,
+        pub parent_position: Option<u32>,
+        pub children: Vec<u32>
+    }
 
-#[derive(Debug)]
-struct TreeNode {
-    content: String,
-    level: u32,
-    parent_position: Option<u32>,
-    children: Vec<u32>
-}
+    #[derive(Debug)]
+    pub struct Tree {
+        pub nodes: Vec<TreeNode>
+    }
 
-#[derive(Debug)]
-struct Tree {
-    nodes: Vec<TreeNode>
+    #[derive(Debug)]
+    pub struct TreeLevel {
+        level: u32,
+        node_positions: Vec<u32>
+    }
 }
 
 #[derive(Debug)]
 pub struct Forest {
-    trees: HashMap<String, Tree>
+    trees: HashMap<String, tree::Tree>,
+    levels: HashMap<String, Vec<tree::TreeLevel>>
 }
 
 impl Forest {
@@ -158,7 +166,7 @@ impl Forest {
         let mut i = 0;
         let mut prev_level:u32 = 0;
         let mut current_tree_id = String::new();
-        let mut forest = Forest { trees: HashMap::new() };
+        let mut forest = Forest { trees: HashMap::new(), levels: HashMap::new() };
     
         for l in reader.lines() {
             i += 1;
@@ -188,8 +196,8 @@ impl Forest {
                             }
 
                             // Create a new tree and put root node
-                            let mut tree = Tree { nodes: vec!() };
-                            tree.nodes.push(TreeNode {
+                            let mut tree = tree::Tree { nodes: vec!() };
+                            tree.nodes.push(tree::TreeNode {
                                 content: String::from(&content),
                                 level,
                                 parent_position: None,
@@ -205,7 +213,7 @@ impl Forest {
                             if let Some(parent_node) = stack.pop_parent(level) {
                                 if let Some(tree) = forest.trees.get_mut(&current_tree_id) {
                                     // Put new node in the tree
-                                    tree.nodes.push(TreeNode {
+                                    tree.nodes.push(tree::TreeNode {
                                         content: String::from(&content),
                                         level,
                                         parent_position: Some(parent_node.tree_position),
@@ -250,4 +258,5 @@ TODO:
 - Find a specific node, starting on any node or root.
 - Access a specific node by using a path.
 - Allow using the BufReader directly to read data from the tree, instead of parsing and generating a model in mem. For very big trees.
+- Generate a tree/forest programatically and serialize into a TREF file.
 */
