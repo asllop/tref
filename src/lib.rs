@@ -26,7 +26,7 @@ mod parser {
             Self {
                 tree_id_matcher: Regex::new(r"^\[[A-Za-z0-9_]+\]$").unwrap(),
                 tree_id_finder: Regex::new(r"[A-Za-z0-9_]+").unwrap(),
-                node_matcher: Regex::new(r"^(\+ )+[^\+].*$").unwrap(),
+                node_matcher: Regex::new(r"^(\+ )+[^\+ ].*$").unwrap(),
                 node_finder: Regex::new(r"(\+ )+").unwrap(),
                 node_level_finder: Regex::new(r"(\+ )").unwrap(),
                 comment_matcher: Regex::new(r"^#.*+$").unwrap()
