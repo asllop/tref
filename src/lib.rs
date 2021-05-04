@@ -73,8 +73,10 @@ mod stack {
 
     #[derive(Debug)]
     pub struct NodeStackContent {
+        //TODO: remove "node" field, not needed
         pub node: String,
-        level: u32
+        level: u32,
+        pub tree_position: u32
     }
 
     impl NodeStack {
@@ -117,15 +119,17 @@ mod stack {
     }
 
     impl NodeStackContent {
-        pub fn new(node: &String, level: u32) -> Self {
+        pub fn new(node: &String, level: u32, tree_position: u32) -> Self {
             Self {
                 node: String::from(node),
-                level
+                level,
+                tree_position
             }
         }
     }
 }
 
+/*
 #[derive(Debug)]
 pub struct TreeNode<'a> {
     pub children: Vec<TreeNode<'a>>,
@@ -133,6 +137,7 @@ pub struct TreeNode<'a> {
     pub parent: Option<&'a TreeNode<'a>>,
     pub content: String
 }
+*/
 
 //Data structure for level by level access. This struct makes reference to the TreeNode struct, that is the main structure to hold the nodes and the tree.
 // only for Breadth-first trasverse
@@ -154,78 +159,115 @@ Alternative structure for Tree:
 - In the stack, the NodeStackContent contains an array position to the NodeStruct and a level.
  */
 
-pub fn build_tree<'a>(reader: BufReader<impl Read>) -> Result<HashMap<String, TreeNode<'a>>, String> {
-    let parser =  parser::TreeParser::new();
-    let mut stack = stack::NodeStack::new();
-    let mut i = 0;
-    let mut prev_level:u32 = 0;
-    let mut trees: HashMap<String, TreeNode<'a>> = HashMap::new();
-    let mut current_tree_id = String::new();
+#[derive(Debug)]
+struct TreeNode {
+    content: String,
+    level: u32,
+    parent_position: Option<u32>,
+    children: Vec<u32>
+}
 
-    for l in reader.lines() {
-        i += 1;
-        println!("----------------");
-        if let Ok(line) = l {
-            let statement = parser.parse_statement(&line);
-            match statement {
-                parser::TreeStatement::Invalid => return Result::Err(format!("Invalid statement at line {}", i)),
-                parser::TreeStatement::TreeID(tree_id) => {
-                    println!("tree_id       {}", tree_id);
-                    stack.flush();
-                    current_tree_id = tree_id;
-                }
-                parser::TreeStatement::Node(content, level) => {
-                    println!("node          {} (level: {})", content, level);
+#[derive(Debug)]
+pub struct Tree {
+    nodes: Vec<TreeNode>
+}
 
-                    if level > prev_level + 1 {
-                        return Result::Err(format!("Invalid node level at line {}", i));
+//TODO: create type Forest to encapsulate the HashMap that contains the "new" method that generates the tree structure
+
+impl Tree {
+    pub fn build(reader: BufReader<impl Read>) -> Result<HashMap<String, Self>, String> {
+        let parser =  parser::TreeParser::new();
+        let mut stack = stack::NodeStack::new();
+        let mut i = 0;
+        let mut prev_level:u32 = 0;
+        let mut current_tree_id = String::new();
+        let mut forest = HashMap::new();
+        //let mut tree = Tree { nodes: vec!() };
+    
+        for l in reader.lines() {
+            i += 1;
+            println!("----------------");
+            if let Ok(line) = l {
+                let statement = parser.parse_statement(&line);
+                match statement {
+                    parser::TreeStatement::Invalid => return Result::Err(format!("Invalid statement at line {}", i)),
+                    parser::TreeStatement::TreeID(tree_id) => {
+                        println!("tree_id       {}", tree_id);
+                        stack.flush();
+                        current_tree_id = tree_id;
                     }
-
-                    if level == 1 {
-                        // Root node
-                        println!("Root node");
-                        
-                        if let Some(_) = stack.top() {
-                            return Result::Err(format!("Multiple root nodes at line {}", i));
+                    parser::TreeStatement::Node(content, level) => {
+                        println!("node          {} (level: {})", content, level);
+    
+                        if level > prev_level + 1 {
+                            return Result::Err(format!("Invalid node level at line {}", i));
                         }
+    
+                        if level == 1 {
+                            // Root node
+                            println!("Root node");
+                            
+                            if let Some(_) = stack.top() {
+                                return Result::Err(format!("Multiple root nodes at line {}", i));
+                            }
 
-                        stack.push(stack::NodeStackContent::new(&content, level));
-
-                        let root_node = TreeNode {
-                            children: vec!(),
-                            level: level,
-                            parent: None,
-                            content: content
-                        };
-                        trees.insert(String::from(&current_tree_id), root_node);
-                    }
-                    else {
-                        // Somebody's child node
-                        if let Some(parent_node) = stack.pop_parent(level) {
-                            println!("My parent is {}", parent_node.node);
-                            stack.push(parent_node);
+                            // Create a new tree and put root node
+                            let mut tree = Tree { nodes: vec!() };
+                            tree.nodes.push(TreeNode {
+                                content: String::from(&content),
+                                level,
+                                parent_position: None,
+                                children: vec!()
+                            });
+                            forest.insert(String::from(&current_tree_id), tree);
+    
+                            // Put node reference on stack
+                            stack.push(stack::NodeStackContent::new(&content, level, 0));
                         }
                         else {
-                            return Result::Err(format!("Couldn't find a parent at line {}", i));
+                            // Somebody's child node
+                            if let Some(parent_node) = stack.pop_parent(level) {
+                                println!("My parent is {}", parent_node.node);
+                                
+                                if let Some(tree) = forest.get_mut(&current_tree_id) {
+                                    // Put new node in the tree
+                                    tree.nodes.push(TreeNode {
+                                        content: String::from(&content),
+                                        level,
+                                        parent_position: Some(parent_node.tree_position),
+                                        children: vec!()
+                                    });
+                                    let new_node_position = tree.nodes.len() as u32 - 1;
+                                    // Attach node to parent
+                                    if let Some(parent_node_real) = tree.nodes.get_mut(parent_node.tree_position as usize) {
+                                        parent_node_real.children.push(new_node_position);
+                                    }
+
+                                    // Return parent reference node to stack
+                                    stack.push(parent_node);
+                                    // Push new node reference to stack
+                                    stack.push(stack::NodeStackContent::new(&content, level, new_node_position));
+                                }
+                            }
+                            else {
+                                return Result::Err(format!("Couldn't find a parent at line {}", i));
+                            }
                         }
-
-                        stack.push(stack::NodeStackContent::new(&content, level));
-                        //TODO: attach node to parent
-                    }
-
-                    prev_level = level;
-                },
-                _ => {}
+    
+                        prev_level = level;
+                    },
+                    _ => {}
+                }
+            }
+            else {
+               return Result::Err(format!("Could not read line at {}", i));
             }
         }
-        else {
-           return Result::Err(format!("Could not read line at {}", i));
-        }
-    }
-
-    println!("{:#?}", stack);
-
-    Result::Ok(trees)
+    
+        println!("{:#?}", stack);
+    
+        Result::Ok(forest)
+    }    
 }
 
 /*
