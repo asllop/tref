@@ -212,7 +212,7 @@ impl Forest {
                             // Create a new tree and put root node
                             let mut tree = tree::Tree { nodes: vec!() };
                             tree.nodes.push(tree::TreeNode::new_root(&content));
-                            Self::add_node_to_levels(&mut levels, &current_tree_id, level, 0);
+                            Self::add_node_to_levels(&mut levels, &current_tree_id, level, 0)?;
                             forest.trees.insert(String::from(&current_tree_id), tree);
     
                             // Put node reference on stack
@@ -225,7 +225,7 @@ impl Forest {
                                     // Put new node in the tree
                                     tree.nodes.push(tree::TreeNode::new(&content, level, Some(parent_node_ref.tree_position)));
                                     let new_node_position = tree.nodes.len() as u32 - 1;
-                                    Self::add_node_to_levels(&mut levels, &current_tree_id, level, new_node_position);
+                                    Self::add_node_to_levels(&mut levels, &current_tree_id, level, new_node_position)?;
 
                                     // Attach node to parent
                                     if let Some(parent_node) = tree.nodes.get_mut(parent_node_ref.tree_position as usize) {
@@ -264,7 +264,7 @@ impl Forest {
         Result::Ok(forest)
     }  
     
-    fn add_node_to_levels(levels: &mut HashMap<String, Vec<tree::TreeLevel>>, tree_id: &String, level: u32, node_pos: u32) {
+    fn add_node_to_levels(levels: &mut HashMap<String, Vec<tree::TreeLevel>>, tree_id: &String, level: u32, node_pos: u32) -> Result<(), String> {
         // Tree doesn't exist, create it
         if let None = levels.get_mut(tree_id) {
             levels.insert(String::from(tree_id), vec!());
@@ -283,14 +283,14 @@ impl Forest {
                 tree_level.node_positions.push(node_pos);
             }
             else {
-                //TODO: return Result::Err instead
-                panic!("Level tree vector position not found");
+                return Result::Err(format!("Level tree vector position not found"));
             }
         }
         else {
-            //TODO: return Result::Err instead
-            panic!("Level tree vector not found");
+            return Result::Err(format!("Level tree vector not found"));
         }
+
+        Ok(())
     }
 }
 
