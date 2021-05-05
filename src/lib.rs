@@ -126,21 +126,7 @@ mod stack {
     }
 }
 
-/*
-TODO:
-Create a data structure for level by level access. This struct makes reference to the Tree struct.
-Will contain one position of an array per level, and each position will contain references to all nodes of that level.
-Only for Breadth-first trasverse
-*/
 mod tree {
-    #[derive(Debug)]
-    pub struct TreeNode {
-        pub content: String,
-        pub level: u32,
-        pub parent_position: Option<u32>,
-        pub children: Vec<u32>
-    }
-
     #[derive(Debug)]
     pub struct Tree {
         pub nodes: Vec<TreeNode>
@@ -150,6 +136,14 @@ mod tree {
     pub struct TreeLevel {
         pub level: u32,
         pub node_positions: Vec<u32>
+    }
+
+    #[derive(Debug)]
+    pub struct TreeNode {
+        pub content: String,
+        pub level: u32,
+        pub parent_position: Option<u32>,
+        pub children: Vec<u32>
     }
 
     impl TreeNode {
@@ -169,8 +163,8 @@ mod tree {
 
     #[derive(Debug)]
     pub struct TreeModel<'a> {
-        tree_ref:  &'a Tree,
-        level_ref: &'a Vec<TreeLevel>
+        pub tree_ref:  &'a Tree,
+        pub level_ref: &'a Vec<TreeLevel>
     }
 
     impl<'a> TreeModel<'a> {
@@ -193,17 +187,45 @@ mod tree {
             }
             None
         }
+
+        pub fn bfs_iter(self) -> crate::iter::BfsIter<'a> {
+            crate::iter::BfsIter::new(self)
+        }
     }
 }
 
+//TODO: implement iterators
 mod iter {
-    struct BfsIter<'a> {
-        tree: crate::tree::TreeModel<'a>
+    pub struct BfsIter<'a> {
+        tree: crate::tree::TreeModel<'a>,
+        position: usize,
+        sub_position: usize
+    }
+
+    impl<'a> BfsIter<'a> {
+        pub fn new(tree: crate::tree::TreeModel<'a>) -> Self {
+            Self {
+                tree,
+                position: 0,
+                sub_position: 0
+            }
+        }
     }
 
     impl<'a> Iterator for BfsIter<'a> {
-        type Item = ();//&'a crate::tree::TreeNode;
+        type Item = &'a crate::tree::TreeNode;
         fn next(&mut self) -> Option<Self::Item> {
+            if let Some(tree_level) = self.tree.level_ref.get(self.position) {
+                if let Some(node_position) = tree_level.node_positions.get(self.sub_position) {
+                    self.sub_position += 1;
+                    return self.tree.tree_ref.nodes.get(*node_position as usize);
+                }
+                else {
+                    self.position += 1;
+                    self.sub_position = 0;                    
+                    return self.next();
+                }
+            }
             None
         }
     }

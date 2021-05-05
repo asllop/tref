@@ -11,8 +11,13 @@ fn main() {
         match Forest::new(BufReader::new(file)) {
             Ok(mut forest) => {
                 println!("{:#?}", forest);
-                let tree = forest.tree(&String::from("my_tree"));
-                println!("Obtained tree (my_tree) =\n{:#?}", tree);
+
+                println!("Traverse tree in BFS:");
+                if let Some(tree_model) = forest.tree(&String::from("my_tree")) {
+                    for n in tree_model.bfs_iter() {
+                        println!("{:#?}", n.content);
+                    }
+                }
             },
             Err(msg) => println!("ERROR = {}", msg)
         }
