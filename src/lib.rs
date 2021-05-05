@@ -166,6 +166,47 @@ mod tree {
             Self::new(content, 1, None)
         }
     }
+
+    #[derive(Debug)]
+    pub struct TreeModel<'a> {
+        tree_ref:  &'a Tree,
+        level_ref: &'a Vec<TreeLevel>
+    }
+
+    impl<'a> TreeModel<'a> {
+        pub fn new(forest: &'a crate::Forest, tree_id: &String) -> Option<Self> {
+            if let None = forest.trees.get(tree_id) {
+                return None;
+            }
+            else if let None = forest.levels.get(tree_id) {
+                return None;
+            }
+            else {
+                if let Some(tree_ref) = forest.trees.get(tree_id) {
+                    if let Some(level_ref) = forest.levels.get(tree_id) {
+                        return Some(Self {
+                            tree_ref,
+                            level_ref
+                        });
+                    }
+                }
+            }
+            None
+        }
+    }
+}
+
+mod iter {
+    struct BfsIter<'a> {
+        tree: crate::tree::TreeModel<'a>
+    }
+
+    impl<'a> Iterator for BfsIter<'a> {
+        type Item = ();//&'a crate::tree::TreeNode;
+        fn next(&mut self) -> Option<Self::Item> {
+            None
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -291,6 +332,10 @@ impl Forest {
         }
 
         Ok(())
+    }
+
+    pub fn tree(&mut self, tree_id: &String) -> Option<tree::TreeModel> {
+        tree::TreeModel::new(self, tree_id)
     }
 }
 

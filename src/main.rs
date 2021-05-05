@@ -9,8 +9,12 @@ fn main() {
 
     if let Ok(file) = File::open(file_name) {
         match Forest::new(BufReader::new(file)) {
-            Ok(f) => println!("{:#?}", f),
-            Err(m) => println!("ERROR = {}", m)
+            Ok(mut forest) => {
+                println!("{:#?}", forest);
+                let tree = forest.tree(&String::from("my_tree"));
+                println!("Obtained tree (my_tree) =\n{:#?}", tree);
+            },
+            Err(msg) => println!("ERROR = {}", msg)
         }
     }
     else {
