@@ -148,8 +148,8 @@ mod tree {
 
     #[derive(Debug)]
     pub struct TreeLevel {
-        level: u32,
-        node_positions: Vec<u32>
+        pub level: u32,
+        pub node_positions: Vec<u32>
     }
 
     impl TreeNode {
@@ -178,13 +178,12 @@ impl Forest {
     pub fn new(reader: BufReader<impl Read>) -> Result<Self, String> {
         let parser = parser::TreeParser::new();
         let mut stack = stack::NodeStack::new();
-        let mut i = 0;
         let mut prev_level:u32 = 0;
         let mut current_tree_id = String::new();
         let mut forest = Forest { trees: HashMap::new(), levels: HashMap::new() };
+        let mut levels: HashMap<String, Vec<tree::TreeLevel>> = HashMap::new();
     
-        for l in reader.lines() {
-            i += 1;
+        for (i, l) in reader.lines().enumerate() {
             if let Ok(line) = l {
                 let statement = parser.parse_statement(&line);
                 match statement {
@@ -213,6 +212,7 @@ impl Forest {
                             // Create a new tree and put root node
                             let mut tree = tree::Tree { nodes: vec!() };
                             tree.nodes.push(tree::TreeNode::new_root(&content));
+                            Self::add_node_to_levels(&mut levels, &current_tree_id, level, 0);
                             forest.trees.insert(String::from(&current_tree_id), tree);
     
                             // Put node reference on stack
@@ -225,6 +225,8 @@ impl Forest {
                                     // Put new node in the tree
                                     tree.nodes.push(tree::TreeNode::new(&content, level, Some(parent_node_ref.tree_position)));
                                     let new_node_position = tree.nodes.len() as u32 - 1;
+                                    Self::add_node_to_levels(&mut levels, &current_tree_id, level, new_node_position);
+
                                     // Attach node to parent
                                     if let Some(parent_node) = tree.nodes.get_mut(parent_node_ref.tree_position as usize) {
                                         parent_node.children.push(new_node_position);
@@ -234,7 +236,7 @@ impl Forest {
                                         return Result::Err(format!("Couldn't find a parent node at line {}", i));
                                     }
 
-                                    // Return parent node reference to stack
+                                    // Push back parent node reference to stack
                                     stack.push(parent_node_ref);
                                     // Push new node reference to stack
                                     stack.push(stack::NodeStackContent::new(level, new_node_position));
@@ -258,8 +260,38 @@ impl Forest {
             }
         }
     
+        forest.levels = levels;
         Result::Ok(forest)
-    }    
+    }  
+    
+    fn add_node_to_levels(levels: &mut HashMap<String, Vec<tree::TreeLevel>>, tree_id: &String, level: u32, node_pos: u32) {
+        // Tree doesn't exist, create it
+        if let None = levels.get_mut(tree_id) {
+            levels.insert(String::from(tree_id), vec!());
+        }
+        // Get tree vector
+        if let Some(tree_level_vec) = levels.get_mut(tree_id) {
+            // Level doesn't exist, create it
+            if let None = tree_level_vec.get_mut(level as usize - 1) {
+                tree_level_vec.push(tree::TreeLevel {
+                    level,
+                    node_positions: vec!()
+                });
+            }
+            // Add node_position to level
+            if let Some(tree_level) = tree_level_vec.get_mut(level as usize - 1) {
+                tree_level.node_positions.push(node_pos);
+            }
+            else {
+                //TODO: return Result::Err instead
+                panic!("Level tree vector position not found");
+            }
+        }
+        else {
+            //TODO: return Result::Err instead
+            panic!("Level tree vector not found");
+        }
+    }
 }
 
 /*

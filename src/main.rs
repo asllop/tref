@@ -14,6 +14,6 @@ fn main() {
         }
     }
     else {
-        println!("Could not read file");
+        println!("Could not read file {}", file_name);
     }
 }
