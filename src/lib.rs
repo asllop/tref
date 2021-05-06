@@ -282,7 +282,7 @@ impl Forest {
             if let Ok(line) = l {
                 let statement = parser.parse_statement(&line);
                 match statement {
-                    parser::TreeStatement::Invalid => return Result::Err(format!("Invalid statement at line {}", i)),
+                    parser::TreeStatement::Invalid => return Result::Err(format!("Invalid statement at line {}", i + 1)),
                     parser::TreeStatement::TreeID(tree_id) => {
                         println!("-------------------------");
                         println!("tree_id       {}", tree_id);
@@ -293,7 +293,7 @@ impl Forest {
                         println!("node          {} (level: {})", content, level);
     
                         if level > prev_level + 1 {
-                            return Result::Err(format!("Invalid node level at line {}", i));
+                            return Result::Err(format!("Invalid node level at line {}", i + 1));
                         }
     
                         if level == 1 {
@@ -301,11 +301,11 @@ impl Forest {
                             println!("Root node");
                             
                             if let Some(_) = stack.top() {
-                                return Result::Err(format!("Multiple root nodes at line {}", i));
+                                return Result::Err(format!("Multiple root nodes at line {}", i + 1));
                             }
 
                             if current_tree_id.is_empty() {
-                                return Result::Err(format!("Found root node without previous tree ID at line {}", i));
+                                return Result::Err(format!("Found root node without previous tree ID at line {}", i + 1));
                             }
 
                             // Create a new tree and put root node
@@ -331,7 +331,7 @@ impl Forest {
                                         println!("My parent is {}", parent_node.content);
                                     }
                                     else {
-                                        return Result::Err(format!("Couldn't find a parent node at line {}", i));
+                                        return Result::Err(format!("Couldn't find a parent node at line {}", i + 1));
                                     }
 
                                     // Push back parent node reference to stack
@@ -340,11 +340,11 @@ impl Forest {
                                     stack.push(stack::NodeStackContent::new(level, new_node_position));
                                 }
                                 else {
-                                    return Result::Err(format!("Couldn't find tree at line {}", i));
+                                    return Result::Err(format!("Couldn't find tree at line {}", i + 1));
                                 }
                             }
                             else {
-                                return Result::Err(format!("Couldn't find a parent ref at line {}", i));
+                                return Result::Err(format!("Couldn't find a parent ref at line {}", i + 1));
                             }
                         }
     
@@ -354,7 +354,7 @@ impl Forest {
                 }
             }
             else {
-               return Result::Err(format!("Could not read line at {}", i));
+               return Result::Err(format!("Could not read line at {}", i + 1));
             }
         }
     
