@@ -132,6 +132,31 @@ mod tree {
         pub nodes: Vec<TreeNode>
     }
 
+    impl Tree {
+        pub fn new() -> Self {
+            Self {
+                nodes: vec!()
+            }
+        }
+
+        pub fn add_root_node(&mut self, content: &String) {
+            self.nodes.push(TreeNode::new_root(content));
+        }
+
+        pub fn add_node(&mut self, content: &String, level: u32, parent_node_ref: &crate::stack::NodeStackContent) -> u32 {
+            self.nodes.push(TreeNode::new(&content, level, Some(parent_node_ref.tree_position)));
+            self.last_pos()
+        }
+
+        pub fn last_pos(&self) -> u32 {
+            self.nodes.len() as u32 - 1
+        }
+
+        pub fn get_mut_node(&mut self, parent_node_ref: &crate::stack::NodeStackContent) -> Option<&mut crate::tree::TreeNode> {
+            self.nodes.get_mut(parent_node_ref.tree_position as usize)
+        }
+    }
+
     #[derive(Debug)]
     pub struct TreeLevel {
         pub level: u32,
@@ -158,6 +183,10 @@ mod tree {
 
         pub fn new_root(content: &String) -> Self {
             Self::new(content, 1, None)
+        }
+
+        pub fn add_child_node(&mut self, new_node_position: u32) {
+            self.children.push(new_node_position);
         }
     }
 
@@ -229,6 +258,9 @@ mod iter {
             None
         }
     }
+
+    //TODO: Inverse BFS (inverse level order, but same order within the levels)
+    //TODO: DFS iterators: in-order, pre-order and post-order.
 }
 
 #[derive(Debug)]
@@ -272,11 +304,15 @@ impl Forest {
                                 return Result::Err(format!("Multiple root nodes at line {}", i));
                             }
 
+                            if current_tree_id.is_empty() {
+                                return Result::Err(format!("Found root node without previous tree ID at line {}", i));
+                            }
+
                             // Create a new tree and put root node
-                            let mut tree = tree::Tree { nodes: vec!() };
-                            tree.nodes.push(tree::TreeNode::new_root(&content));
+                            let mut tree = tree::Tree::new();
+                            tree.add_root_node(&content);
                             Self::add_node_to_levels(&mut levels, &current_tree_id, level, 0)?;
-                            forest.trees.insert(String::from(&current_tree_id), tree);
+                            forest.add_tree(&current_tree_id, tree);
     
                             // Put node reference on stack
                             stack.push(stack::NodeStackContent::new(level, 0));
@@ -284,15 +320,14 @@ impl Forest {
                         else {
                             // Somebody's child node
                             if let Some(parent_node_ref) = stack.pop_parent(level) {
-                                if let Some(tree) = forest.trees.get_mut(&current_tree_id) {
+                                if let Some(tree) = forest.get_mut_tree(&current_tree_id) {
                                     // Put new node in the tree
-                                    tree.nodes.push(tree::TreeNode::new(&content, level, Some(parent_node_ref.tree_position)));
-                                    let new_node_position = tree.nodes.len() as u32 - 1;
+                                    let new_node_position = tree.add_node(&content, level, &parent_node_ref);
                                     Self::add_node_to_levels(&mut levels, &current_tree_id, level, new_node_position)?;
 
                                     // Attach node to parent
-                                    if let Some(parent_node) = tree.nodes.get_mut(parent_node_ref.tree_position as usize) {
-                                        parent_node.children.push(new_node_position);
+                                    if let Some(parent_node) = tree.get_mut_node(&parent_node_ref) {
+                                        parent_node.add_child_node(new_node_position);
                                         println!("My parent is {}", parent_node.content);
                                     }
                                     else {
@@ -354,6 +389,14 @@ impl Forest {
         }
 
         Ok(())
+    }
+
+    fn add_tree(&mut self, tree_id: &String, tree: tree::Tree) {
+        self.trees.insert(String::from(tree_id), tree);
+    }
+
+    fn get_mut_tree(&mut self, current_tree_id: &String) -> Option<&mut tree::Tree> {
+        self.trees.get_mut(current_tree_id)
     }
 
     pub fn tree(&mut self, tree_id: &String) -> Option<tree::TreeModel> {

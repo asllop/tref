@@ -15,7 +15,7 @@ fn main() {
                 println!("Traverse tree in BFS:");
                 if let Some(tree_model) = forest.tree(&String::from("my_tree")) {
                     for n in tree_model.bfs_iter() {
-                        println!("{:#?}", n.content);
+                        println!("{}", n.content);
                     }
                 }
             },
