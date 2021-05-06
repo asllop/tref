@@ -1,8 +1,8 @@
-# Tree-in-Rows Elemental Format
+# Tree in Rows Elemental Format
 
-TREF is a plain text file format that describes trees in a human readable way. There are other formats to describe trees, which the most widely used is [Newick](https://en.wikipedia.org/wiki/Newick_format). The problem with Newick is that it is hard to write, but it is even harder to read. There are other formats like [PhyloXML](https://en.wikipedia.org/wiki/PhyloXML) and [Nexus](https://en.wikipedia.org/wiki/Nexus_file), but are verbose, complex and very specialized on bioinformatics.
+TREF is a plain text file format to describe trees in a human readable way. There are formats already to describe trees, which the most widely used is [Newick](https://en.wikipedia.org/wiki/Newick_format). The problem with Newick is that it is hard to write, but it is even harder to read. Other tree formats exist, like [PhyloXML](https://en.wikipedia.org/wiki/PhyloXML) and [Nexus](https://en.wikipedia.org/wiki/Nexus_file), but are verbose, complex and very specialized in bioinformatics.
 
-With TREF a human can write a tree and understand the structure by having a quick look, because it is designed to be both easy to handle for humans and easy to parse for machines.
+With TREF a human can write a tree and understand the structure by having a quick look, because it is designed to be both easy to read for humans and easy to parse for machines.
 
 Writing a tree in a file can be useful for many reasons: as a config file for an application, to store information that can be modified and read by an app and its user, to serialize tree-like memory structures, etc.
 
@@ -118,4 +118,4 @@ Filename: `example_6.tref`
 + + 5:child_2
 ```
 
-When parsed, the user will receive a node where the identifier is a string like `99:child_1_1`, that will be able to parse and generate a custom object to fill the tree structure.
+When parsed, the user will receive a node where the identifier is a string like `99:child_1_1`, that will be able to parse and generate a custom object containing the desired data model.
