@@ -12,7 +12,7 @@ impl Tree {
         tree
     }
 
-    pub fn add_root_node(&mut self, content: &String) {
+    fn add_root_node(&mut self, content: &String) {
         self.nodes.push(TreeNode::new_root(content));
     }
 
