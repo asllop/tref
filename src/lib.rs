@@ -196,7 +196,7 @@ mod tree {
         pub level_ref: &'a Vec<TreeLevel>
     }
 
-    impl<'a> TreeModel<'a> {
+    impl<'a, 'b> TreeModel<'a> {
         pub fn new(forest: &'a crate::Forest, tree_id: &String) -> Option<Self> {
             if let None = forest.trees.get(tree_id) {
                 return None;
@@ -217,7 +217,12 @@ mod tree {
             None
         }
 
-        pub fn bfs_iter(self) -> crate::iter::BfsIter<'a> {
+        pub fn bfs_iter(&'b self) -> crate::iter::BfsIter<'a, 'b> {
+            crate::iter::BfsIter::new(self)
+        }
+
+        //TODO: Mocked inverse BFS iter
+        pub fn inv_bfs_iter(&'b self) -> crate::iter::BfsIter<'a, 'b> {
             crate::iter::BfsIter::new(self)
         }
     }
@@ -225,14 +230,14 @@ mod tree {
 
 //TODO: implement iterators
 mod iter {
-    pub struct BfsIter<'a> {
-        tree: crate::tree::TreeModel<'a>,
+    pub struct BfsIter<'a, 'b> {
+        tree: &'b crate::tree::TreeModel<'a>,
         position: usize,
         sub_position: usize
     }
 
-    impl<'a> BfsIter<'a> {
-        pub fn new(tree: crate::tree::TreeModel<'a>) -> Self {
+    impl<'a, 'b> BfsIter<'a, 'b> {
+        pub fn new(tree: &'b crate::tree::TreeModel<'a>) -> Self {
             Self {
                 tree,
                 position: 0,
@@ -241,7 +246,7 @@ mod iter {
         }
     }
 
-    impl<'a> Iterator for BfsIter<'a> {
+    impl<'a, 'b> Iterator for BfsIter<'a, 'b> {
         type Item = &'a crate::tree::TreeNode;
         fn next(&mut self) -> Option<Self::Item> {
             if let Some(tree_level) = self.tree.level_ref.get(self.position) {

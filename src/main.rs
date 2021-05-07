@@ -16,14 +16,19 @@ fn main() {
         println!("{:#?}", forest);
 
         if let Some(tree_model) = forest.tree(&String::from("my_tree")) {
-            println!("Traverse my_tree in BFS:");
+            println!("\nTraverse my_tree in BFS:");
             for n in tree_model.bfs_iter() {
+                println!("{}", n.content);
+            }
+
+            println!("\nTraverse my_tree in Inverse BFS:");
+            for n in tree_model.inv_bfs_iter() {
                 println!("{}", n.content);
             }
         }
 
         if let Some(tree_model) = forest.tree(&String::from("my_tree_2")) {
-            println!("Traverse my_tree_2 in BFS:");
+            println!("\nTraverse my_tree_2 in BFS:");
             for n in tree_model.bfs_iter() {
                 println!("{}", n.content);
             }
