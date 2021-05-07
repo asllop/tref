@@ -400,7 +400,7 @@ impl Forest {
         self.trees.get_mut(current_tree_id)
     }
 
-    pub fn tree(&mut self, tree_id: &String) -> Option<tree::TreeModel> {
+    pub fn tree(&self, tree_id: &String) -> Option<tree::TreeModel> {
         tree::TreeModel::new(self, tree_id)
     }
 }
@@ -430,7 +430,7 @@ mod tests {
         + + + + child_2_1_1\n";
     
         match crate::Forest::new(BufReader::new(tref_sample.as_bytes())) {
-            Ok(mut forest) => {
+            Ok(forest) => {
                 if let Some(tree_model) = forest.tree(&String::from("test_tree")) {
                     for (i,n) in tree_model.bfs_iter().enumerate() {
                         match i {

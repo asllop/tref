@@ -5,21 +5,28 @@ use tref::Forest;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let file_name = if let Some(f_n) = args.get(1) { &f_n[..] } else { "file.tref" };
+    let file_name = if let Some(cmd_arg_1) = args.get(1) { &cmd_arg_1[..] } else { "file.tref" };
 
     if let Ok(file) = File::open(file_name) {
-        match Forest::new(BufReader::new(file)) {
-            Ok(mut forest) => {
-                println!("{:#?}", forest);
+        let forest = match Forest::new(BufReader::new(file)) {
+            Ok(forest) => forest,
+            Err(msg) => panic!("ERROR = {}", msg)
+        };
 
-                println!("Traverse tree in BFS:");
-                if let Some(tree_model) = forest.tree(&String::from("my_tree")) {
-                    for n in tree_model.bfs_iter() {
-                        println!("{}", n.content);
-                    }
-                }
-            },
-            Err(msg) => println!("ERROR = {}", msg)
+        println!("{:#?}", forest);
+
+        if let Some(tree_model) = forest.tree(&String::from("my_tree")) {
+            println!("Traverse my_tree in BFS:");
+            for n in tree_model.bfs_iter() {
+                println!("{}", n.content);
+            }
+        }
+
+        if let Some(tree_model) = forest.tree(&String::from("my_tree_2")) {
+            println!("Traverse my_tree_2 in BFS:");
+            for n in tree_model.bfs_iter() {
+                println!("{}", n.content);
+            }
         }
     }
     else {
