@@ -1,4 +1,33 @@
 
+    // Simple Iterator
+
+    pub struct TreeIter<'a, 'b> {
+        tree: &'b crate::tree::TreeModel<'a>,
+        position: usize
+    }
+
+    impl<'a, 'b> TreeIter<'a, 'b> {
+        pub fn new(tree: &'b crate::tree::TreeModel<'a>) -> Self {
+            Self {
+                tree,
+                position: 0
+            }
+        }
+    }
+
+    impl<'a, 'b> Iterator for TreeIter<'a, 'b> {
+        type Item = &'a crate::tree::TreeNode;
+        fn next(&mut self) -> Option<Self::Item> {
+            match &self.tree.tree_ref.nodes.get(self.position) {
+                Some(node) => {
+                    self.position += 1;
+                    Some(node)
+                },
+                None => None
+            }
+        }
+    }
+
     // BFS Iterator
 
     pub struct BfsIter<'a, 'b> {

@@ -90,6 +90,10 @@ impl<'a, 'b> TreeModel<'a> {
         None
     }
 
+    pub fn iter(&'b self) -> crate::iter::TreeIter<'a, 'b> {
+        crate::iter::TreeIter::new(self)
+    }
+
     pub fn bfs_iter(&'b self) -> crate::iter::BfsIter<'a, 'b> {
         crate::iter::BfsIter::new(self)
     }
