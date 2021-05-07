@@ -53,8 +53,7 @@ impl Forest {
                             }
 
                             // Create a new tree and put root node
-                            let mut tree = tree::Tree::new();
-                            tree.add_root_node(&content);
+                            let tree = tree::Tree::new(&content);
                             Self::add_node_to_levels(&mut levels, &current_tree_id, level, 0)?;
                             forest.add_tree(&current_tree_id, tree);
     

@@ -4,10 +4,12 @@ pub struct Tree {
 }
 
 impl Tree {
-    pub fn new() -> Self {
-        Self {
+    pub fn new(content: &String) -> Self {
+        let mut tree = Self {
             nodes: vec!()
-        }
+        };
+        tree.add_root_node(content);
+        tree
     }
 
     pub fn add_root_node(&mut self, content: &String) {
