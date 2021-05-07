@@ -20,6 +20,10 @@ impl NodeStack {
         self.buffer.push(obj);
     }
 
+    pub fn push_new(&mut self, level: u32, tree_position: u32) {
+        self.buffer.push(crate::stack::NodeStackContent::new(level, tree_position));
+    }
+
     pub fn pop(&mut self) -> Option<NodeStackContent> {
         self.buffer.pop()
     }

@@ -59,7 +59,7 @@ impl Forest {
                             forest.add_tree(&current_tree_id, tree);
     
                             // Put node reference on stack
-                            stack.push(stack::NodeStackContent::new(level, 0));
+                            stack.push_new(level, 0);
                         }
                         else {
                             // Somebody's child node
@@ -81,7 +81,7 @@ impl Forest {
                                     // Push back parent node reference to stack
                                     stack.push(parent_node_ref);
                                     // Push new node reference to stack
-                                    stack.push(stack::NodeStackContent::new(level, new_node_position));
+                                    stack.push_new(level, new_node_position);
                                 }
                                 else {
                                     return Result::Err(format!("Couldn't find tree at line {}", i + 1));
