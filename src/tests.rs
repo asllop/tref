@@ -30,7 +30,39 @@ fn check_forest_generation() {
                                 }
                             }
                             if n.children.len() != 0 { panic!("Node 1 hasn't 0 children!"); }
-                        }
+                        },
+                        2 => {
+                            if !n.content.eq("child_2") { panic!("Wrong node 2 content!"); }
+                            if let None = n.parent_position { panic!("Node 2 has a no parent!"); }
+                            if let Some(parent_n) = n.parent_position {
+                                if parent_n != 0 {
+                                    panic!("Node 2 has wrong parent!");
+                                }
+                            }
+                            if n.children.len() != 1 { panic!("Node 2 hasn't 1 child!"); }
+                            if n.children[0] != 3 { panic!("Node 2 children are incorrect!"); }
+                        },
+                        3 => {
+                            if !n.content.eq("child_2_1") { panic!("Wrong node 3 content!"); }
+                            if let None = n.parent_position { panic!("Node 3 has a no parent!"); }
+                            if let Some(parent_n) = n.parent_position {
+                                if parent_n != 2 {
+                                    panic!("Node 3 has wrong parent!");
+                                }
+                            }
+                            if n.children.len() != 1 { panic!("Node 3 hasn't 1 child!"); }
+                            if n.children[0] != 4 { panic!("Node 3 children are incorrect!"); }
+                        },
+                        4 => {
+                            if !n.content.eq("child_2_1_1") { panic!("Wrong node 4 content!"); }
+                            if let None = n.parent_position { panic!("Node 4 has a no parent!"); }
+                            if let Some(parent_n) = n.parent_position {
+                                if parent_n != 3 {
+                                    panic!("Node 4 has wrong parent!");
+                                }
+                            }
+                            if n.children.len() != 0 { panic!("Node 4 hasn't 0 children!"); }
+                        },
                         _ => {}
                     }
                 }
