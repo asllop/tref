@@ -6,25 +6,7 @@ mod stack;
 mod tree;
 mod iter;
 
-pub use tree::NodeContent;
-
-#[derive(Debug)]
-pub struct SimpleNode {
-    content: String
-}
-
-impl tree::NodeContent for SimpleNode {
-    fn new(content: String) -> Self {
-        Self {
-            content
-        }
-    }
-
-    fn get_content(&self) -> &String {
-        &self.content
-    }
-}
-
+pub use tree::{NodeContent, SimpleNode};
 
 #[derive(Debug)]
 pub struct Forest<T: tree::NodeContent> {
@@ -164,12 +146,10 @@ impl<T: tree::NodeContent> Forest<T> {
 
 /*
 TODO:
-- Generate tree with default object or user defined. La callback de l'usr rep: node str, parent node i depth.
-- Create iterators to traverse the tree using various algorithms (https://towardsdatascience.com/4-types-of-tree-traversal-algorithms-d56328450846 , https://en.wikipedia.org/wiki/Tree_traversal).
-- Find a specific node, starting on any node or root.
+- Find a specific node, starting at any node or root.
 - Access a specific node by using a path.
-- Allow using the BufReader directly to read data from the tree, instead of parsing and generating a model in mem. For very big trees.
 - Generate a tree/forest programatically and serialize into a TREF file.
+- Allow using the BufReader directly to read data from the tree, instead of parsing and generating a model in mem. For very big trees.
 */
 
 #[cfg(test)]

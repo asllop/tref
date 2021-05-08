@@ -42,20 +42,29 @@ pub trait NodeContent {
 }
 
 #[derive(Debug)]
+pub struct SimpleNode {
+    content: String
+}
+
+impl NodeContent for SimpleNode {
+    fn new(content: String) -> Self {
+        Self {
+            content
+        }
+    }
+
+    fn get_content(&self) -> &String {
+        &self.content
+    }
+}
+
+#[derive(Debug)]
 pub struct TreeNode<T: NodeContent> {
     pub content: T,
     pub level: u32,
     pub parent_position: Option<u32>,
     pub children: Vec<u32>
 }
-
-/*
-Custom Nodes:
-- Creem un trait NodeContent, que serveix tant per a parsejar nodes com per a obtenir-ne el contingut.
-- Definim 2 metodes: new(content: String) -> T i get_content() -> String
-- Creem un SimpleNodeContent per al cas general, on només tenim una string per al content.
-- Creem dues funcions per a construir un Forest: build que fa servir el default i build_dialect on se li passa el tipus NodeContent custom.
-*/
 
 impl<T: NodeContent> TreeNode<T> {
     pub fn new(content: &String, level: u32, parent_position: Option<u32>) -> Self {

@@ -1,14 +1,14 @@
 use std::fs::File;
 use std::io::BufReader;
 use std::env;
-use tref::{Forest, NodeContent};
+use tref::{Forest, SimpleNode, NodeContent};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     let file_name = if let Some(cmd_arg_1) = args.get(1) { &cmd_arg_1[..] } else { "file.tref" };
 
     if let Ok(file) = File::open(file_name) {
-        let forest: Forest<tref::SimpleNode> = match Forest::new(BufReader::new(file)) {
+        let forest: Forest<SimpleNode> = match Forest::new(BufReader::new(file)) {
             Ok(forest) => forest,
             Err(msg) => panic!("ERROR = {}", msg)
         };
