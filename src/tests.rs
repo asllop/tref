@@ -155,20 +155,17 @@ fn check_dialect() {
     impl NodeContent for WeightNode {
         fn new(content: String) -> Self {
             let vec: Vec<&str> = content.split(':').collect();
-            if vec.len() != 2 {
-                Self {
-                    content: String::new(),
-                    weight: 0
-                }
-            }
-            else {
+            if vec.len() == 2 {
                 Self {
                     content: String::from(vec[1]),
                     weight: match vec[0].trim().parse() {
                         Ok(num) => num,
-                        Err(_) => 0
+                        Err(_) => panic!("Wrong WeightNode format, invalid u32 number!")
                     }
                 }
+            }
+            else {
+                panic!("Wrong WeightNode format!");
             }
         }
 
@@ -183,7 +180,7 @@ fn check_dialect() {
     + + 10:child_1\n\
     + + + 25:child_1_1\n\
     + + + + 12:child_1_1_1\n";
-    
+
     let forest: Result<Forest<WeightNode>, String> = Forest::new(BufReader::new(tref.as_bytes()));
     match forest {
         Ok(forest) => {
