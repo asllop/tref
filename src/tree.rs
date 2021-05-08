@@ -1,9 +1,9 @@
 #[derive(Debug)]
-pub struct Tree {
-    pub nodes: Vec<TreeNode>
+pub struct Tree<T: NodeContent> {
+    pub nodes: Vec<TreeNode<T>>
 }
 
-impl Tree {
+impl<T: NodeContent> Tree<T> {
     pub fn new(content: &String) -> Self {
         let mut tree = Self {
             nodes: vec!()
@@ -25,7 +25,7 @@ impl Tree {
         self.nodes.len() as u32 - 1
     }
 
-    pub fn get_mut_node(&mut self, parent_node_ref: &crate::stack::NodeStackContent) -> Option<&mut crate::tree::TreeNode> {
+    pub fn get_mut_node(&mut self, parent_node_ref: &crate::stack::NodeStackContent) -> Option<&mut crate::tree::TreeNode<T>> {
         self.nodes.get_mut(parent_node_ref.tree_position as usize)
     }
 }
@@ -36,18 +36,31 @@ pub struct TreeLevel {
     pub node_positions: Vec<u32>
 }
 
+pub trait NodeContent {
+    fn new(content: String) -> Self;
+    fn get_content(&self) -> &String;
+}
+
 #[derive(Debug)]
-pub struct TreeNode {
-    pub content: String,
+pub struct TreeNode<T: NodeContent> {
+    pub content: T,
     pub level: u32,
     pub parent_position: Option<u32>,
     pub children: Vec<u32>
 }
 
-impl TreeNode {
+/*
+Custom Nodes:
+- Creem un trait NodeContent, que serveix tant per a parsejar nodes com per a obtenir-ne el contingut.
+- Definim 2 metodes: new(content: String) -> T i get_content() -> String
+- Creem un SimpleNodeContent per al cas general, on només tenim una string per al content.
+- Creem dues funcions per a construir un Forest: build que fa servir el default i build_dialect on se li passa el tipus NodeContent custom.
+*/
+
+impl<T: NodeContent> TreeNode<T> {
     pub fn new(content: &String, level: u32, parent_position: Option<u32>) -> Self {
         Self {
-            content: String::from(content),
+            content: T::new(String::from(content)),
             level,
             parent_position,
             children: vec!()
@@ -64,13 +77,13 @@ impl TreeNode {
 }
 
 #[derive(Debug)]
-pub struct TreeModel<'a> {
-    pub tree_ref:  &'a Tree,
+pub struct TreeModel<'a, T: NodeContent> {
+    pub tree_ref:  &'a Tree<T>,
     pub level_ref: &'a Vec<TreeLevel>
 }
 
-impl<'a, 'b> TreeModel<'a> {
-    pub fn new(forest: &'a crate::Forest, tree_id: &String) -> Option<Self> {
+impl<'a, 'b, T: NodeContent> TreeModel<'a, T> {
+    pub fn new(forest: &'a crate::Forest<T>, tree_id: &String) -> Option<Self> {
         if let None = forest.trees.get(tree_id) {
             return None;
         }
@@ -90,15 +103,15 @@ impl<'a, 'b> TreeModel<'a> {
         None
     }
 
-    pub fn iter(&'b self) -> crate::iter::TreeIter<'a, 'b> {
+    pub fn iter(&'b self) -> crate::iter::TreeIter<'a, 'b, T> {
         crate::iter::TreeIter::new(self)
     }
 
-    pub fn bfs_iter(&'b self) -> crate::iter::BfsIter<'a, 'b> {
+    pub fn bfs_iter(&'b self) -> crate::iter::BfsIter<'a, 'b, T> {
         crate::iter::BfsIter::new(self)
     }
 
-    pub fn inv_bfs_iter(&'b self) -> crate::iter::InvBfsIter<'a, 'b> {
+    pub fn inv_bfs_iter(&'b self) -> crate::iter::InvBfsIter<'a, 'b, T> {
         crate::iter::InvBfsIter::new(self)
     }
 }

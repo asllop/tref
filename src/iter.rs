@@ -1,13 +1,13 @@
 
     // Simple Iterator
 
-    pub struct TreeIter<'a, 'b> {
-        tree: &'b crate::tree::TreeModel<'a>,
+    pub struct TreeIter<'a, 'b, T: crate::tree::NodeContent> {
+        tree: &'b crate::tree::TreeModel<'a, T>,
         position: usize
     }
 
-    impl<'a, 'b> TreeIter<'a, 'b> {
-        pub fn new(tree: &'b crate::tree::TreeModel<'a>) -> Self {
+    impl<'a, 'b, T: crate::tree::NodeContent> TreeIter<'a, 'b, T> {
+        pub fn new(tree: &'b crate::tree::TreeModel<'a, T>) -> Self {
             Self {
                 tree,
                 position: 0
@@ -15,8 +15,8 @@
         }
     }
 
-    impl<'a, 'b> Iterator for TreeIter<'a, 'b> {
-        type Item = &'a crate::tree::TreeNode;
+    impl<'a, 'b, T: crate::tree::NodeContent> Iterator for TreeIter<'a, 'b, T> {
+        type Item = &'a crate::tree::TreeNode<T>;
         fn next(&mut self) -> Option<Self::Item> {
             match &self.tree.tree_ref.nodes.get(self.position) {
                 Some(node) => {
@@ -30,14 +30,14 @@
 
     // BFS Iterator
 
-    pub struct BfsIter<'a, 'b> {
-        tree: &'b crate::tree::TreeModel<'a>,
+    pub struct BfsIter<'a, 'b, T: crate::tree::NodeContent> {
+        tree: &'b crate::tree::TreeModel<'a, T>,
         position: usize,
         sub_position: usize
     }
 
-    impl<'a, 'b> BfsIter<'a, 'b> {
-        pub fn new(tree: &'b crate::tree::TreeModel<'a>) -> Self {
+    impl<'a, 'b, T: crate::tree::NodeContent> BfsIter<'a, 'b, T> {
+        pub fn new(tree: &'b crate::tree::TreeModel<'a, T>) -> Self {
             Self {
                 tree,
                 position: 0,
@@ -46,8 +46,8 @@
         }
     }
 
-    impl<'a, 'b> Iterator for BfsIter<'a, 'b> {
-        type Item = &'a crate::tree::TreeNode;
+    impl<'a, 'b, T: crate::tree::NodeContent> Iterator for BfsIter<'a, 'b, T> {
+        type Item = &'a crate::tree::TreeNode<T>;
         fn next(&mut self) -> Option<Self::Item> {
             if let Some(tree_level) = self.tree.level_ref.get(self.position) {
                 if let Some(node_position) = tree_level.node_positions.get(self.sub_position) {
@@ -66,14 +66,14 @@
 
     // Inverse BSF Iterator
 
-    pub struct InvBfsIter<'a, 'b> {
-        tree: &'b crate::tree::TreeModel<'a>,
+    pub struct InvBfsIter<'a, 'b, T: crate::tree::NodeContent> {
+        tree: &'b crate::tree::TreeModel<'a, T>,
         position: usize,
         sub_position: usize
     }
 
-    impl<'a, 'b> InvBfsIter<'a, 'b> {
-        pub fn new(tree: &'b crate::tree::TreeModel<'a>) -> Self {
+    impl<'a, 'b, T: crate::tree::NodeContent> InvBfsIter<'a, 'b, T> {
+        pub fn new(tree: &'b crate::tree::TreeModel<'a, T>) -> Self {
             Self {
                 tree,
                 position: tree.level_ref.len() - 1,
@@ -82,8 +82,8 @@
         }
     }
 
-    impl<'a, 'b> Iterator for InvBfsIter<'a, 'b> {
-        type Item = &'a crate::tree::TreeNode;
+    impl<'a, 'b, T: crate::tree::NodeContent> Iterator for InvBfsIter<'a, 'b, T> {
+        type Item = &'a crate::tree::TreeNode<T>;
         fn next(&mut self) -> Option<Self::Item> {
             if let Some(tree_level) = self.tree.level_ref.get(self.position) {
                 if let Some(node_position) = tree_level.node_positions.get(self.sub_position) {

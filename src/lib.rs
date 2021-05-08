@@ -6,13 +6,33 @@ mod stack;
 mod tree;
 mod iter;
 
+pub use tree::NodeContent;
+
 #[derive(Debug)]
-pub struct Forest {
-    trees: HashMap<String, tree::Tree>,
+pub struct SimpleNode {
+    content: String
+}
+
+impl tree::NodeContent for SimpleNode {
+    fn new(content: String) -> Self {
+        Self {
+            content
+        }
+    }
+
+    fn get_content(&self) -> &String {
+        &self.content
+    }
+}
+
+
+#[derive(Debug)]
+pub struct Forest<T: tree::NodeContent> {
+    trees: HashMap<String, tree::Tree<T>>,
     levels: HashMap<String, Vec<tree::TreeLevel>>
 }
 
-impl Forest {
+impl<T: tree::NodeContent> Forest<T> {
     //TODO: return an error type implementing the std::error::Error trait.
     pub fn new(reader: BufReader<impl Read>) -> Result<Self, String> {
         let parser = parser::TreeParser::new();
@@ -129,15 +149,15 @@ impl Forest {
         Ok(())
     }
 
-    fn add_tree(&mut self, tree_id: &String, tree: tree::Tree) {
+    fn add_tree(&mut self, tree_id: &String, tree: tree::Tree<T>) {
         self.trees.insert(String::from(tree_id), tree);
     }
 
-    fn get_mut_tree(&mut self, current_tree_id: &String) -> Option<&mut tree::Tree> {
+    fn get_mut_tree(&mut self, current_tree_id: &String) -> Option<&mut tree::Tree<T>> {
         self.trees.get_mut(current_tree_id)
     }
 
-    pub fn tree(&self, tree_id: &String) -> Option<tree::TreeModel> {
+    pub fn tree(&self, tree_id: &String) -> Option<tree::TreeModel<T>> {
         tree::TreeModel::new(self, tree_id)
     }
 }
