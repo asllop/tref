@@ -137,3 +137,80 @@ fn check_bfs_iter() {
         Err(msg) => panic!("ERROR = {}", msg)
     }
 }
+
+#[test]
+fn check_dialect() {
+    #[derive(Debug)]
+    struct WeightNode {
+        content: String,
+        weight: u32
+    }
+
+    impl WeightNode {
+        fn get_weight(&self) -> u32 {
+            self.weight
+        }
+    }
+
+    impl NodeContent for WeightNode {
+        fn new(content: String) -> Self {
+            let vec: Vec<&str> = content.split(':').collect();
+            if vec.len() != 2 {
+                Self {
+                    content: String::new(),
+                    weight: 0
+                }
+            }
+            else {
+                Self {
+                    content: String::from(vec[1]),
+                    weight: match vec[0].trim().parse() {
+                        Ok(num) => num,
+                        Err(_) => 0
+                    }
+                }
+            }
+        }
+
+        fn get_content(&self) -> &String {
+            &self.content
+        }
+    }
+
+    let tref =
+    "[test_tree]\n\
+    + 0:root_node\n\
+    + + 10:child_1\n\
+    + + + 25:child_1_1\n\
+    + + + + 12:child_1_1_1\n";
+    
+    let forest: Result<Forest<WeightNode>, String> = Forest::new(BufReader::new(tref.as_bytes()));
+    match forest {
+        Ok(forest) => {
+            if let Some(tree_model) = forest.tree(&String::from("test_tree")) {
+                for (i,n) in tree_model.iter().enumerate() {
+                    match i {
+                        0 => {
+                            if !n.content.get_content().eq("root_node") { panic!("Wrong {} node content!", n.content.get_content()); }
+                            if n.content.get_weight() != 0 { panic!("Wrong {} node weight!", n.content.get_weight()); }
+                        },
+                        1 => {
+                            if !n.content.get_content().eq("child_1") { panic!("Wrong {} node content!", n.content.get_content()); }
+                            if n.content.get_weight() != 10 { panic!("Wrong {} node weight!", n.content.get_weight()); }
+                        },
+                        2 => {
+                            if !n.content.get_content().eq("child_1_1") { panic!("Wrong {} node content!", n.content.get_content()); }
+                            if n.content.get_weight() != 25 { panic!("Wrong {} node weight!", n.content.get_weight()); }
+                        },
+                        3 => {
+                            if !n.content.get_content().eq("child_1_1_1") { panic!("Wrong {} node content!", n.content.get_content()); }
+                            if n.content.get_weight() != 12 { panic!("Wrong {} node weight!", n.content.get_weight()); }
+                        },
+                        _ => {}
+                    }
+                }
+            }
+        },
+        Err(msg) => panic!("ERROR = {}", msg)
+    }
+}
