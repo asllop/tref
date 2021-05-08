@@ -1,6 +1,6 @@
 use std::io::BufReader;
 use std::io::prelude::*;
-use crate::tree::NodeContent;
+use crate::{NodeContent, SimpleNode, Forest};
 
 fn tref_sample() -> BufReader<impl Read> {
     let tref =
@@ -17,7 +17,7 @@ fn tref_sample() -> BufReader<impl Read> {
 
 #[test]
 fn check_forest_integrity() {
-    let forest: Result<crate::Forest<crate::SimpleNode>, String> = crate::Forest::new(tref_sample());
+    let forest: Result<Forest<SimpleNode>, String> = Forest::new(tref_sample());
     match forest {
         Ok(forest) => {
             if let Some(tree_model) = forest.tree(&String::from("test_tree")) {
@@ -102,7 +102,7 @@ fn check_forest_integrity() {
 
 #[test]
 fn check_bfs_iter() {
-    let forest: Result<crate::Forest<crate::SimpleNode>, String> = crate::Forest::new(tref_sample());
+    let forest: Result<Forest<SimpleNode>, String> = Forest::new(tref_sample());
     match forest {
         Ok(forest) => {
             if let Some(tree_model) = forest.tree(&String::from("test_tree")) {
