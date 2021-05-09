@@ -153,19 +153,19 @@ fn check_dialect() {
     }
 
     impl NodeContent for WeightNode {
-        fn new(content: String) -> Self {
+        fn new(content: String) -> Option<Self> {
             let vec: Vec<&str> = content.split(':').collect();
             if vec.len() == 2 {
-                Self {
-                    content: String::from(vec[1]),
-                    weight: match vec[0].trim().parse() {
-                        Ok(num) => num,
-                        Err(_) => panic!("Wrong WeightNode format, invalid u32 number!")
-                    }
+                match vec[0].trim().parse() {
+                    Ok(num) => Some(Self {
+                        content: String::from(vec[1]),
+                        weight: num
+                    }),
+                    Err(_) => None
                 }
             }
             else {
-                panic!("Wrong WeightNode format!");
+                None
             }
         }
 

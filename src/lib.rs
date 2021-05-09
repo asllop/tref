@@ -49,7 +49,10 @@ impl<T: tree::NodeContent> Forest<T> {
                             }
 
                             // Create new tree with root node and add to forest
-                            let tree = tree::Tree::new(&content);
+                            let mut tree = tree::Tree::new();
+                            if !tree.add_root_node(&content) {
+                                return Result::Err(format!("Failed parsing root node at line {}", i + 1));
+                            }
                             forest.add_tree(&current_tree_id, tree);
                             // Update levels
                             Self::add_node_to_levels(&mut levels, &current_tree_id, level, 0)?;
@@ -63,6 +66,9 @@ impl<T: tree::NodeContent> Forest<T> {
                                 if let Some(tree) = forest.get_mut_tree(&current_tree_id) {
                                     // Put new node in the tree
                                     let new_node_position = tree.add_node(&content, level, &parent_node_ref);
+                                    if new_node_position == 0 {
+                                        return Result::Err(format!("Failed parsing node at line {}", i + 1));
+                                    }
                                     // Update levels
                                     Self::add_node_to_levels(&mut levels, &current_tree_id, level, new_node_position)?;
 

@@ -4,21 +4,30 @@ pub struct Tree<T: NodeContent> {
 }
 
 impl<T: NodeContent> Tree<T> {
-    pub fn new(content: &String) -> Self {
-        let mut tree = Self {
+    pub fn new() -> Self {
+        Self {
             nodes: vec!()
-        };
-        tree.add_root_node(content);
-        tree
+        }
     }
 
-    fn add_root_node(&mut self, content: &String) {
-        self.nodes.push(TreeNode::new_root(content));
+    pub fn add_root_node(&mut self, content: &String) -> bool {
+        if let Some(n) = TreeNode::new_root(content) {
+            self.nodes.push(n);
+            true
+        }
+        else {
+            false
+        }
     }
 
     pub fn add_node(&mut self, content: &String, level: u32, parent_node_ref: &crate::stack::NodeStackContent) -> u32 {
-        self.nodes.push(TreeNode::new(&content, level, Some(parent_node_ref.tree_position)));
-        self.last_pos()
+        if let Some(n) = TreeNode::new(&content, level, Some(parent_node_ref.tree_position)) {
+            self.nodes.push(n);
+            self.last_pos()
+        }
+        else {
+            0
+        }
     }
 
     pub fn last_pos(&self) -> u32 {
@@ -37,7 +46,7 @@ pub struct TreeLevel {
 }
 
 pub trait NodeContent {
-    fn new(content: String) -> Self;
+    fn new(content: String) -> Option<Self> where Self: Sized;
     fn get_content(&self) -> &String;
 }
 
@@ -47,10 +56,8 @@ pub struct SimpleNode {
 }
 
 impl NodeContent for SimpleNode {
-    fn new(content: String) -> Self {
-        Self {
-            content
-        }
+    fn new(content: String) -> Option<Self> where Self: Sized {
+        Some(Self { content })
     }
 
     fn get_content(&self) -> &String {
@@ -67,16 +74,23 @@ pub struct TreeNode<T: NodeContent> {
 }
 
 impl<T: NodeContent> TreeNode<T> {
-    pub fn new(content: &String, level: u32, parent_position: Option<u32>) -> Self {
-        Self {
-            content: T::new(String::from(content)),
-            level,
-            parent_position,
-            children: vec!()
+    pub fn new(content: &String, level: u32, parent_position: Option<u32>) -> Option<Self> {
+        if let Some(c) = T::new(String::from(content)) {
+            Some(
+                Self {
+                    content: c,
+                    level,
+                    parent_position,
+                    children: vec!()
+                }
+            )
+        }
+        else {
+            None
         }
     }
 
-    pub fn new_root(content: &String) -> Self {
+    pub fn new_root(content: &String) -> Option<Self> {
         Self::new(content, 1, None)
     }
 
