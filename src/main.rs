@@ -31,7 +31,7 @@ fn main() {
                 println!("{}", n.content.get_content());
             }
 
-            println!("\nTraverse my_tree in DFS:");
+            println!("\nTraverse my_tree in Pre-DFS:");
             for n in tree_model.pre_dfs_iter() {
                 println!("{}", n.content.get_content());
             }
@@ -43,8 +43,8 @@ fn main() {
                 println!("{}", n.content.get_content());
             }
 
-            println!("\nTraverse wp_tree in DFS:");
-            for n in tree_model.pre_dfs_iter() {
+            println!("\nTraverse wp_tree in Inverse Pre-DFS:");
+            for n in tree_model.inv_pre_dfs_iter() {
                 println!("{}", n.content.get_content());
             }
         }

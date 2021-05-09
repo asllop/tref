@@ -139,6 +139,10 @@ impl<'a, 'b, T: NodeContent> TreeModel<'a, T> {
     }
 
     pub fn pre_dfs_iter(&'b self) -> crate::iter::DfsIter<'a, 'b, T> {
-        crate::iter::DfsIter::new(self)
+        crate::iter::DfsIter::new(self, false)
+    }
+
+    pub fn inv_pre_dfs_iter(&'b self) -> crate::iter::DfsIter<'a, 'b, T> {
+        crate::iter::DfsIter::new(self, true)
     }
 }

@@ -111,16 +111,18 @@
         tree: &'b crate::tree::TreeModel<'a, T>,
         pila: Vec<u32>,
         next: u32,
-        finished: bool
+        finished: bool,
+        inverse: bool
     }
 
     impl<'a, 'b, T: crate::tree::NodeContent> DfsIter<'a, 'b, T> {
-        pub fn new(tree: &'b crate::tree::TreeModel<'a, T>) -> Self {
+        pub fn new(tree: &'b crate::tree::TreeModel<'a, T>, inverse: bool) -> Self {
             Self {
                 tree,
                 pila: vec!(),
                 next: 0,
-                finished: false
+                finished: false,
+                inverse
             }
         }
     }
@@ -137,9 +139,16 @@
             }
             // Get current node
             if let Some(node) = self.tree.tree_ref.nodes.get(self.next as usize) {
-                // Put in the stack all children of current node (TODO: reverse iterator)
-                for child in node.children.iter().rev() {
-                    self.pila.push(*child);
+                // Put in the stack all children of current node
+                if self.inverse {
+                    for child in node.children.iter() {
+                        self.pila.push(*child);
+                    }
+                }
+                else {
+                    for child in node.children.iter().rev() {
+                        self.pila.push(*child);
+                    }
                 }
                 // Get next node from stack.
                 if let Some(next_node_index) = self.pila.pop() {
