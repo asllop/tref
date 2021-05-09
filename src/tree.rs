@@ -56,7 +56,7 @@ pub struct SimpleNode {
 }
 
 impl NodeContent for SimpleNode {
-    fn new(content: String) -> Option<Self> where Self: Sized {
+    fn new(content: String) -> Option<Self> {
         Some(Self { content })
     }
 
