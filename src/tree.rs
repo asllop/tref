@@ -130,6 +130,10 @@ impl<'a, 'b, T: NodeContent> TreeModel<'a, T> {
         crate::iter::TreeIter::new(self)
     }
 
+    pub fn inv_iter(&'b self) -> crate::iter::InvTreeIter<'a, 'b, T> {
+        crate::iter::InvTreeIter::new(self)
+    }
+
     pub fn bfs_iter(&'b self) -> crate::iter::BfsIter<'a, 'b, T> {
         crate::iter::BfsIter::new(self)
     }
@@ -138,11 +142,11 @@ impl<'a, 'b, T: NodeContent> TreeModel<'a, T> {
         crate::iter::InvBfsIter::new(self)
     }
 
-    pub fn pre_dfs_iter(&'b self) -> crate::iter::DfsIter<'a, 'b, T> {
-        crate::iter::DfsIter::new(self, false)
+    pub fn pre_dfs_iter(&'b self) -> crate::iter::PreDfsIter<'a, 'b, T> {
+        crate::iter::PreDfsIter::new(self)
     }
 
-    pub fn inv_pre_dfs_iter(&'b self) -> crate::iter::DfsIter<'a, 'b, T> {
-        crate::iter::DfsIter::new(self, true)
+    pub fn inv_pre_dfs_iter(&'b self) -> crate::iter::InvPreDfsIter<'a, 'b, T> {
+        crate::iter::InvPreDfsIter::new(self)
     }
 }
