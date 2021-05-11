@@ -138,6 +138,8 @@ fn check_bfs_iter() {
     }
 }
 
+//TODO: check all iterators
+
 #[test]
 fn check_dialect() {
     #[derive(Debug)]
@@ -239,7 +241,7 @@ fn check_dialect_enum() {
     let tref =
     "[test_tree]\n\
     + root\n\
-    + + child_1\n\
+    + + child\n\
     + + + 2500\n\
     + + + 130\n";
 
@@ -254,7 +256,7 @@ fn check_dialect_enum() {
                             if let NodeType::Number(_,_) = n.content { panic!("Wrong {} node type!", n.content.get_content()); }
                         },
                         1 => {
-                            if !n.content.get_content().eq("child_1") { panic!("Wrong {} node content!", n.content.get_content()); }
+                            if !n.content.get_content().eq("child") { panic!("Wrong {} node content!", n.content.get_content()); }
                             if let NodeType::Number(_,_) = n.content { panic!("Wrong {} node type!", n.content.get_content()); }
                         },
                         2 => {

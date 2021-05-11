@@ -260,4 +260,57 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for InvPreDfsIter<'a, 'b, T> {
     }
 }
 
-//TODO: DFS iterators: (inverse)In-Order and (inverse)Post-Order.
+// Post-Order DFS
+
+pub struct PostDfsIter<'a, 'b, T: tree::NodeContent> {
+    tree: &'b tree::TreeModel<'a, T>,
+    pila: Vec<(u32, bool)>
+}
+
+impl<'a, 'b, T: tree::NodeContent> PostDfsIter<'a, 'b, T> {
+    pub fn new(tree: &'b tree::TreeModel<'a, T>) -> Self {
+        Self {
+            tree,
+            pila: vec!((0, true))
+        }
+    }
+}
+
+impl<'a, 'b, T: tree::NodeContent> Iterator for PostDfsIter<'a, 'b, T> {
+    type Item = &'a tree::TreeNode<T>;
+    fn next(&mut self) -> Option<Self::Item> {
+        // Get current node
+        if let Some(next_node_tuple) = self.pila.pop() {
+            // found something in the stack
+            let next = next_node_tuple.0;
+            let push_children = next_node_tuple.1;
+            // get node from tree
+            if let Some(node) = self.tree.tree_ref.nodes.get(next as usize) {
+                if !push_children {
+                    return Some(node);
+                }
+                // it has children, put in stack
+                if node.children.len() > 0 {
+                    self.pila.push((next, false));
+                    for child in node.children.iter().rev() {
+                        self.pila.push((*child, true));
+                    }
+                    // Keep trying until we find a node we can return
+                    return self.next();
+                }
+                // if no children, return this one
+                else {
+                    return Some(node);
+                }
+            }
+            else {
+                // Bad thing, a broken index
+                return None;
+            }
+        }
+
+        None
+    }
+}
+
+//TODO: Inverse Post-Order

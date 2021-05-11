@@ -154,4 +154,8 @@ impl<'a, 'b, T: NodeContent> TreeModel<'a, T> {
     pub fn inv_pre_dfs_iter(&'b self) -> iter::InvPreDfsIter<'a, 'b, T> {
         iter::InvPreDfsIter::new(self)
     }
+
+    pub fn post_dfs_iter(&'b self) -> iter::PostDfsIter<'a, 'b, T> {
+        iter::PostDfsIter::new(self)
+    }
 }
