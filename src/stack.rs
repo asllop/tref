@@ -21,7 +21,7 @@ impl NodeStack {
     }
 
     pub fn push_new(&mut self, level: u32, tree_position: u32) {
-        self.buffer.push(crate::stack::NodeStackContent::new(level, tree_position));
+        self.buffer.push(NodeStackContent::new(level, tree_position));
     }
 
     pub fn pop(&mut self) -> Option<NodeStackContent> {

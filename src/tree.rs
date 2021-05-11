@@ -1,3 +1,8 @@
+use crate::stack;
+use crate::tree;
+use crate::iter;
+use crate::forest::Forest;
+
 #[derive(Debug)]
 pub struct Tree<T: NodeContent> {
     pub nodes: Vec<TreeNode<T>>
@@ -20,7 +25,7 @@ impl<T: NodeContent> Tree<T> {
         }
     }
 
-    pub fn add_node(&mut self, content: &String, level: u32, parent_node_ref: &crate::stack::NodeStackContent) -> u32 {
+    pub fn add_node(&mut self, content: &String, level: u32, parent_node_ref: &stack::NodeStackContent) -> u32 {
         if let Some(n) = TreeNode::new(&content, level, Some(parent_node_ref.tree_position)) {
             self.nodes.push(n);
             self.last_pos()
@@ -34,7 +39,7 @@ impl<T: NodeContent> Tree<T> {
         self.nodes.len() as u32 - 1
     }
 
-    pub fn get_mut_node(&mut self, parent_node_ref: &crate::stack::NodeStackContent) -> Option<&mut crate::tree::TreeNode<T>> {
+    pub fn get_mut_node(&mut self, parent_node_ref: &stack::NodeStackContent) -> Option<&mut tree::TreeNode<T>> {
         self.nodes.get_mut(parent_node_ref.tree_position as usize)
     }
 }
@@ -106,7 +111,7 @@ pub struct TreeModel<'a, T: NodeContent> {
 }
 
 impl<'a, 'b, T: NodeContent> TreeModel<'a, T> {
-    pub fn new(forest: &'a crate::Forest<T>, tree_id: &String) -> Option<Self> {
+    pub fn new(forest: &'a Forest<T>, tree_id: &String) -> Option<Self> {
         if let None = forest.trees.get(tree_id) {
             return None;
         }
@@ -126,27 +131,27 @@ impl<'a, 'b, T: NodeContent> TreeModel<'a, T> {
         None
     }
 
-    pub fn iter(&'b self) -> crate::iter::TreeIter<'a, 'b, T> {
-        crate::iter::TreeIter::new(self)
+    pub fn iter(&'b self) -> iter::TreeIter<'a, 'b, T> {
+        iter::TreeIter::new(self)
     }
 
-    pub fn inv_iter(&'b self) -> crate::iter::InvTreeIter<'a, 'b, T> {
-        crate::iter::InvTreeIter::new(self)
+    pub fn inv_iter(&'b self) -> iter::InvTreeIter<'a, 'b, T> {
+        iter::InvTreeIter::new(self)
     }
 
-    pub fn bfs_iter(&'b self) -> crate::iter::BfsIter<'a, 'b, T> {
-        crate::iter::BfsIter::new(self)
+    pub fn bfs_iter(&'b self) -> iter::BfsIter<'a, 'b, T> {
+        iter::BfsIter::new(self)
     }
 
-    pub fn inv_bfs_iter(&'b self) -> crate::iter::InvBfsIter<'a, 'b, T> {
-        crate::iter::InvBfsIter::new(self)
+    pub fn inv_bfs_iter(&'b self) -> iter::InvBfsIter<'a, 'b, T> {
+        iter::InvBfsIter::new(self)
     }
 
-    pub fn pre_dfs_iter(&'b self) -> crate::iter::PreDfsIter<'a, 'b, T> {
-        crate::iter::PreDfsIter::new(self)
+    pub fn pre_dfs_iter(&'b self) -> iter::PreDfsIter<'a, 'b, T> {
+        iter::PreDfsIter::new(self)
     }
 
-    pub fn inv_pre_dfs_iter(&'b self) -> crate::iter::InvPreDfsIter<'a, 'b, T> {
-        crate::iter::InvPreDfsIter::new(self)
+    pub fn inv_pre_dfs_iter(&'b self) -> iter::InvPreDfsIter<'a, 'b, T> {
+        iter::InvPreDfsIter::new(self)
     }
 }
