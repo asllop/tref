@@ -52,6 +52,11 @@ fn main() {
             for n in tree_model.post_dfs_iter() {
                 println!("{}", n.content.get_content());
             }
+
+            println!("\nTraverse wp_tree in Inverse Post-DFS:");
+            for n in tree_model.inv_post_dfs_iter() {
+                println!("{}", n.content.get_content());
+            }
         }
     }
     else {
