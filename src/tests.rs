@@ -211,3 +211,65 @@ fn check_dialect() {
         Err(msg) => panic!("ERROR = {}", msg)
     }
 }
+
+#[test]
+fn check_dialect_enum() {
+    #[derive(Debug)]
+    enum NodeType {
+        Text(String),
+        Number(String, u32)
+    }
+
+    impl NodeContent for NodeType {
+        fn new(content: String) -> Option<Self> {
+            match content.trim().parse() {
+                Ok(num) => Some(Self::Number(content, num)),
+                Err(_) => Some(Self::Text(content))
+            }
+        }
+
+        fn get_content(&self) -> &String {
+            match self {
+                Self::Text(t) => t,
+                Self::Number(t, _) => t
+            }
+        }
+    }
+
+    let tref =
+    "[test_tree]\n\
+    + root\n\
+    + + child_1\n\
+    + + + 2500\n\
+    + + + 130\n";
+
+    let forest: Result<Forest<NodeType>, String> = Forest::new(BufReader::new(tref.as_bytes()));
+    match forest {
+        Ok(forest) => {
+            if let Some(tree_model) = forest.tree(&String::from("test_tree")) {
+                for (i,n) in tree_model.iter().enumerate() {
+                    match i {
+                        0 => {
+                            if !n.content.get_content().eq("root") { panic!("Wrong {} node content!", n.content.get_content()); }
+                            if let NodeType::Number(_,_) = n.content { panic!("Wrong {} node type!", n.content.get_content()); }
+                        },
+                        1 => {
+                            if !n.content.get_content().eq("child_1") { panic!("Wrong {} node content!", n.content.get_content()); }
+                            if let NodeType::Number(_,_) = n.content { panic!("Wrong {} node type!", n.content.get_content()); }
+                        },
+                        2 => {
+                            if !n.content.get_content().eq("2500") { panic!("Wrong {} node content!", n.content.get_content()); }
+                            if let NodeType::Text(_) = n.content { panic!("Wrong {} node type!", n.content.get_content()); }
+                        },
+                        3 => {
+                            if !n.content.get_content().eq("130") { panic!("Wrong {} node content!", n.content.get_content()); }
+                            if let NodeType::Text(_) = n.content { panic!("Wrong {} node type!", n.content.get_content()); }
+                        },
+                        _ => {}
+                    }
+                }
+            }
+        },
+        Err(msg) => panic!("ERROR = {}", msg)
+    }
+}
