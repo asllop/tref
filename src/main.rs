@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::BufReader;
 use std::env;
-use tref::{Forest, SimpleNode, NodeContent};
+use tref::*;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -9,8 +9,8 @@ fn main() {
 
     if let Ok(file) = File::open(file_name) {
         let forest: Forest<SimpleNode> = match Forest::new(BufReader::new(file)) {
-            Ok(forest) => forest,
-            Err(msg) => panic!("ERROR = {}", msg)
+            Ok(f) => f,
+            Err(m) => panic!("Could not parse TREF: {}", m)
         };
 
         println!("{:#?}", forest);
@@ -50,6 +50,6 @@ fn main() {
         }
     }
     else {
-        println!("Could not read file {}", file_name);
+        panic!("Could not read file {}", file_name);
     }
 }

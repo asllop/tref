@@ -77,6 +77,8 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for InvTreeIter<'a, 'b, T> {
     }
 }
 
+//TODO: implement BFS using a queue and make "levels" structure optional (or even remove it)
+
 // BFS Iterator
 
 pub struct BfsIter<'a, 'b, T: tree::NodeContent> {
@@ -113,7 +115,7 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for BfsIter<'a, 'b, T> {
     }
 }
 
-// Inverse BSF Iterator
+// Inverse BFS Iterator
 
 pub struct InvBfsIter<'a, 'b, T: tree::NodeContent> {
     tree: &'b tree::TreeModel<'a, T>,
@@ -152,13 +154,13 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for InvBfsIter<'a, 'b, T> {
     }
 }
 
-// NOTE: due to TREF structure, iter() and pre_dfs_iter() are equivalent.
+// Pre-Order DFS Algorithm:
+// 1. Visit current node.
+// 2. Put all children of current node (in inverse or direct order) in stack.
+// 3. Get from stack next node to visit. If none, finish.
+// 4. Goto 1.
 
 // Pre-Order DFS
-//1. Visit current node.
-//2. Put all children of current node (in inverse or direct order) in stack.
-//3. Get from stack next node to visit. If none, finish.
-//4. Goto 1.
 
 pub struct PreDfsIter<'a, 'b, T: tree::NodeContent> {
     tree: &'b tree::TreeModel<'a, T>,
