@@ -178,17 +178,17 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for InvBfsIter<'a, 'b, T> {
 // BFS Iterator Switch
 
 pub struct BfsIterSwitch<'a, 'b, T: tree::NodeContent> {
-    iter: BfsIter<'a, 'b, T>,
-    level_iter: level_iters::BfsIter<'a, 'b, T>,
-    levels: bool
+    iter: Option<BfsIter<'a, 'b, T>>,
+    level_iter: Option<level_iters::BfsIter<'a, 'b, T>>,
+    levels: bool,
 }
 
 impl<'a, 'b, T: tree::NodeContent> BfsIterSwitch<'a, 'b, T> {
     pub fn new(tree: &'b tree::TreeModel<'a, T>) -> Self {
         Self {
-            iter: BfsIter::new(tree),
-            level_iter: level_iters::BfsIter::new(tree),
-            levels: if let Some(_) = tree.level_ref { true } else { false }
+            levels: if let Some(_) = tree.level_ref { true } else { false },
+            iter: if let Some(_) = tree.level_ref { None } else { Some(BfsIter::new(tree)) },
+            level_iter: if let Some(_) = tree.level_ref { Some(level_iters::BfsIter::new(tree)) } else { None }
         }
     }
 }
@@ -197,10 +197,10 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for BfsIterSwitch<'a, 'b, T> {
     type Item = &'a tree::TreeNode<T>;
     fn next(&mut self) -> Option<Self::Item> {
         if self.levels {
-            return self.level_iter.next();
+            return self.level_iter.as_mut().unwrap().next();
         }
         else {
-            return self.iter.next();
+            return self.iter.as_mut().unwrap().next();
         }
     }
 }
@@ -208,17 +208,17 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for BfsIterSwitch<'a, 'b, T> {
 // Inverse BFS Iterator Switch
 
 pub struct InvBfsIterSwitch<'a, 'b, T: tree::NodeContent> {
-    iter: InvBfsIter<'a, 'b, T>,
-    level_iter: level_iters::InvBfsIter<'a, 'b, T>,
+    iter: Option<InvBfsIter<'a, 'b, T>>,
+    level_iter: Option<level_iters::InvBfsIter<'a, 'b, T>>,
     levels: bool
 }
 
 impl<'a, 'b, T: tree::NodeContent> InvBfsIterSwitch<'a, 'b, T> {
     pub fn new(tree: &'b tree::TreeModel<'a, T>) -> Self {
         Self {
-            iter: InvBfsIter::new(tree),
-            level_iter: level_iters::InvBfsIter::new(tree),
-            levels: if let Some(_) = tree.level_ref { true } else { false }
+            levels: if let Some(_) = tree.level_ref { true } else { false },
+            iter: if let Some(_) = tree.level_ref { None } else { Some(InvBfsIter::new(tree)) },
+            level_iter: if let Some(_) = tree.level_ref { Some(level_iters::InvBfsIter::new(tree)) } else { None }
         }
     }
 }
@@ -227,10 +227,10 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for InvBfsIterSwitch<'a, 'b, T> {
     type Item = &'a tree::TreeNode<T>;
     fn next(&mut self) -> Option<Self::Item> {
         if self.levels {
-            return self.level_iter.next();
+            return self.level_iter.as_mut().unwrap().next();
         }
         else {
-            return self.iter.next();
+            return self.iter.as_mut().unwrap().next();
         }
     }
 }
