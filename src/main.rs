@@ -8,7 +8,7 @@ fn main() {
     let file_name = if let Some(cmd_arg_1) = args.get(1) { &cmd_arg_1[..] } else { "file.tref" };
 
     if let Ok(file) = File::open(file_name) {
-        let forest: Forest<SimpleNode> = match Forest::new(BufReader::new(file)) {
+        let forest: Forest<SimpleNode> = match Forest::new(BufReader::new(file), false) {
             Ok(f) => f,
             Err(m) => panic!("Could not parse TREF: {}", m)
         };
@@ -32,7 +32,7 @@ fn main() {
             }
 
             println!("\nTraverse my_tree in Inverse Level BFS:");
-            for n in tree_model.inv_bfs_iter() {
+            for n in tree_model.inv_lev_bfs_iter() {
                 println!("{}", n.content.get_content());
             }
 

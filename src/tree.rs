@@ -107,7 +107,7 @@ impl<T: NodeContent> TreeNode<T> {
 #[derive(Debug)]
 pub struct TreeModel<'a, T: NodeContent> {
     pub tree_ref:  &'a Tree<T>,
-    pub level_ref: &'a Vec<TreeLevel>
+    pub level_ref: Option<&'a Vec<TreeLevel>>
 }
 
 impl<'a, 'b, T: NodeContent> TreeModel<'a, T> {
@@ -115,19 +115,25 @@ impl<'a, 'b, T: NodeContent> TreeModel<'a, T> {
         if let None = forest.trees.get(tree_id) {
             return None;
         }
-        else if let None = forest.levels.get(tree_id) {
-            return None;
-        }
-        else {
-            if let Some(tree_ref) = forest.trees.get(tree_id) {
-                if let Some(level_ref) = forest.levels.get(tree_id) {
-                    return Some(Self {
-                        tree_ref,
-                        level_ref
-                    });
-                }
+        else if let Some(levels) = &forest.levels {
+            if let None = levels.get(tree_id) {
+                return None;
             }
         }
+        
+        if let Some(tree_ref) = forest.trees.get(tree_id) {
+            let level_ref = if let Some(levels) = &forest.levels {
+                levels.get(tree_id)
+            }
+            else {
+                None
+            };
+            return Some(Self {
+                tree_ref,
+                level_ref
+            });
+        }
+        
         None
     }
 

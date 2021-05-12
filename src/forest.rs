@@ -7,17 +7,17 @@ use crate::stack;
 #[derive(Debug)]
 pub struct Forest<T: tree::NodeContent> {
     pub trees: HashMap<String, tree::Tree<T>>,
-    pub levels: HashMap<String, Vec<tree::TreeLevel>>
+    pub levels: Option<HashMap<String, Vec<tree::TreeLevel>>>
 }
 
 impl<T: tree::NodeContent> Forest<T> {
     //TODO: return an error type implementing the std::error::Error trait.
-    pub fn new(reader: BufReader<impl Read>) -> Result<Self, String> {
+    pub fn new(reader: BufReader<impl Read>, use_levels: bool) -> Result<Self, String> {
         let parser = parser::TreeParser::new();
         let mut stack = stack::NodeStack::new();
         let mut prev_level:u32 = 0;
         let mut current_tree_id = String::new();
-        let mut forest = Forest { trees: HashMap::new(), levels: HashMap::new() };
+        let mut forest = Forest { trees: HashMap::new(), levels: None };
         let mut levels: HashMap<String, Vec<tree::TreeLevel>> = HashMap::new();
     
         for (i, l) in reader.lines().enumerate() {
@@ -51,7 +51,9 @@ impl<T: tree::NodeContent> Forest<T> {
                             }
                             forest.add_tree(&current_tree_id, tree);
                             // Update levels
-                            Self::add_node_to_levels(&mut levels, &current_tree_id, level, 0)?;
+                            if use_levels {
+                                Self::add_node_to_levels(&mut levels, &current_tree_id, level, 0)?;
+                            }
     
                             // Push root node reference to stack
                             stack.push_new(1, 0);
@@ -66,7 +68,9 @@ impl<T: tree::NodeContent> Forest<T> {
                                         return Result::Err(format!("Failed parsing node at line {}", i + 1));
                                     }
                                     // Update levels
-                                    Self::add_node_to_levels(&mut levels, &current_tree_id, level, new_node_position)?;
+                                    if use_levels {
+                                        Self::add_node_to_levels(&mut levels, &current_tree_id, level, new_node_position)?;
+                                    }
 
                                     // Attach node to parent
                                     if let Some(parent_node) = tree.get_mut_node(&parent_node_ref) {
@@ -100,7 +104,10 @@ impl<T: tree::NodeContent> Forest<T> {
             }
         }
     
-        forest.levels = levels;
+        if use_levels {
+            forest.levels = Some(levels);
+        }
+
         Result::Ok(forest)
     }  
     

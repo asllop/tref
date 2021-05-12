@@ -185,9 +185,15 @@ pub struct InvLevBfsIter<'a, 'b, T: tree::NodeContent> {
 
 impl<'a, 'b, T: tree::NodeContent> InvLevBfsIter<'a, 'b, T> {
     pub fn new(tree: &'b tree::TreeModel<'a, T>) -> Self {
+        let position = if let Some(level_ref) = tree.level_ref {
+                level_ref.len() - 1
+        }
+        else {
+            usize::MAX
+        };
         Self {
             tree,
-            position: tree.level_ref.len() - 1,
+            position,
             sub_position: 0
         }
     }
@@ -196,18 +202,20 @@ impl<'a, 'b, T: tree::NodeContent> InvLevBfsIter<'a, 'b, T> {
 impl<'a, 'b, T: tree::NodeContent> Iterator for InvLevBfsIter<'a, 'b, T> {
     type Item = &'a tree::TreeNode<T>;
     fn next(&mut self) -> Option<Self::Item> {
-        if let Some(tree_level) = self.tree.level_ref.get(self.position) {
-            if let Some(node_position) = tree_level.node_positions.get(self.sub_position) {
-                self.sub_position += 1;
-                return self.tree.tree_ref.nodes.get(*node_position as usize);
-            }
-            else {
-                if self.position == 0 {
-                    return None;
+        if let Some(level_ref) = self.tree.level_ref {
+            if let Some(tree_level) = level_ref.get(self.position) {
+                if let Some(node_position) = tree_level.node_positions.get(self.sub_position) {
+                    self.sub_position += 1;
+                    return self.tree.tree_ref.nodes.get(*node_position as usize);
                 }
-                self.position -= 1;
-                self.sub_position = 0;                    
-                return self.next();
+                else {
+                    if self.position == 0 {
+                        return None;
+                    }
+                    self.position -= 1;
+                    self.sub_position = 0;                    
+                    return self.next();
+                }
             }
         }
         None
