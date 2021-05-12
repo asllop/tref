@@ -145,16 +145,16 @@ impl<'a, 'b, T: NodeContent> TreeModel<'a, T> {
         iter::InvTreeIter::new(self)
     }
 
-    pub fn bfs_iter(&'b self) -> iter::BfsIter<'a, 'b, T> {
-        iter::BfsIter::new(self)
+    pub fn bfs_iter(&'b self) -> iter::BfsIterSwitch<'a, 'b, T> {
+        iter::BfsIterSwitch::new(self)
     }
 
-    pub fn inv_bfs_iter(&'b self) -> iter::InvBfsIter<'a, 'b, T> {
-        iter::InvBfsIter::new(self)
+    pub fn inv_bfs_iter(&'b self) -> iter::InvBfsIterSwitch<'a, 'b, T> {
+        iter::InvBfsIterSwitch::new(self)
     }
 
-    pub fn inv_lev_bfs_iter(&'b self) -> iter::InvLevBfsIter<'a, 'b, T> {
-        iter::InvLevBfsIter::new(self)
+    pub fn inv_lev_bfs_iter(&'b self) -> iter::level_iters::InvLevBfsIter<'a, 'b, T> {
+        iter::level_iters::InvLevBfsIter::new(self)
     }
 
     pub fn pre_dfs_iter(&'b self) -> iter::PreDfsIter<'a, 'b, T> {
