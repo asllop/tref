@@ -31,6 +31,11 @@ fn main() {
                 println!("{}", n.content.get_content());
             }
 
+            println!("\nTraverse my_tree in Inverse Level BFS:");
+            for n in tree_model.inv_bfs_iter() {
+                println!("{}", n.content.get_content());
+            }
+
             println!("\nTraverse my_tree in Pre-DFS:");
             for n in tree_model.pre_dfs_iter() {
                 println!("{}", n.content.get_content());

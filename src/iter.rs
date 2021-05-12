@@ -77,22 +77,22 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for InvTreeIter<'a, 'b, T> {
     }
 }
 
-//TODO: implement BFS using a queue and make "levels" structure optional (or even remove it)
-
 // BFS Iterator
 
 pub struct BfsIter<'a, 'b, T: tree::NodeContent> {
     tree: &'b tree::TreeModel<'a, T>,
-    position: usize,
-    sub_position: usize
+    cua: Vec<u32>,
+    next: u32,
+    finished: bool
 }
 
 impl<'a, 'b, T: tree::NodeContent> BfsIter<'a, 'b, T> {
     pub fn new(tree: &'b tree::TreeModel<'a, T>) -> Self {
         Self {
             tree,
-            position: 0,
-            sub_position: 0
+            cua: vec!(),
+            next: 0,
+            finished: false
         }
     }
 }
@@ -100,30 +100,90 @@ impl<'a, 'b, T: tree::NodeContent> BfsIter<'a, 'b, T> {
 impl<'a, 'b, T: tree::NodeContent> Iterator for BfsIter<'a, 'b, T> {
     type Item = &'a tree::TreeNode<T>;
     fn next(&mut self) -> Option<Self::Item> {
-        if let Some(tree_level) = self.tree.level_ref.get(self.position) {
-            if let Some(node_position) = tree_level.node_positions.get(self.sub_position) {
-                self.sub_position += 1;
-                return self.tree.tree_ref.nodes.get(*node_position as usize);
+        if self.finished {
+            return None;
+        }
+        // Get current node
+        if let Some(node) = self.tree.tree_ref.nodes.get(self.next as usize) {
+            // Put in the queue all children of current node
+            for child in node.children.iter() {
+                self.cua.push(*child);
+            }
+            // Get next node from queue.
+            if self.cua.len() > 0 {
+                self.next = self.cua.remove(0);
             }
             else {
-                self.position += 1;
-                self.sub_position = 0;                    
-                return self.next();
+                // If nothing in thq queue, end
+                self.finished = true;
             }
+            // Return current node
+            Some(node)
         }
-        None
+        else {
+            None
+        }
+
     }
 }
 
-// Inverse BFS Iterator
-
 pub struct InvBfsIter<'a, 'b, T: tree::NodeContent> {
+    tree: &'b tree::TreeModel<'a, T>,
+    cua: Vec<u32>,
+    next: u32,
+    finished: bool
+}
+
+impl<'a, 'b, T: tree::NodeContent> InvBfsIter<'a, 'b, T> {
+    pub fn new(tree: &'b tree::TreeModel<'a, T>) -> Self {
+        Self {
+            tree,
+            cua: vec!(),
+            next: 0,
+            finished: false
+        }
+    }
+}
+
+impl<'a, 'b, T: tree::NodeContent> Iterator for InvBfsIter<'a, 'b, T> {
+    type Item = &'a tree::TreeNode<T>;
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.finished {
+            return None;
+        }
+        // Get current node
+        if let Some(node) = self.tree.tree_ref.nodes.get(self.next as usize) {
+            // Put in the queue all children of current node
+            for child in node.children.iter().rev() {
+                self.cua.push(*child);
+            }
+            // Get next node from queue.
+            if self.cua.len() > 0 {
+                self.next = self.cua.remove(0);
+            }
+            else {
+                // If nothing in thq queue, end
+                self.finished = true;
+            }
+            // Return current node
+            Some(node)
+        }
+        else {
+            None
+        }
+
+    }
+}
+
+// Inverse Level BFS Iterator
+
+pub struct InvLevBfsIter<'a, 'b, T: tree::NodeContent> {
     tree: &'b tree::TreeModel<'a, T>,
     position: usize,
     sub_position: usize
 }
 
-impl<'a, 'b, T: tree::NodeContent> InvBfsIter<'a, 'b, T> {
+impl<'a, 'b, T: tree::NodeContent> InvLevBfsIter<'a, 'b, T> {
     pub fn new(tree: &'b tree::TreeModel<'a, T>) -> Self {
         Self {
             tree,
@@ -133,7 +193,7 @@ impl<'a, 'b, T: tree::NodeContent> InvBfsIter<'a, 'b, T> {
     }
 }
 
-impl<'a, 'b, T: tree::NodeContent> Iterator for InvBfsIter<'a, 'b, T> {
+impl<'a, 'b, T: tree::NodeContent> Iterator for InvLevBfsIter<'a, 'b, T> {
     type Item = &'a tree::TreeNode<T>;
     fn next(&mut self) -> Option<Self::Item> {
         if let Some(tree_level) = self.tree.level_ref.get(self.position) {

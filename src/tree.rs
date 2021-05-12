@@ -147,6 +147,10 @@ impl<'a, 'b, T: NodeContent> TreeModel<'a, T> {
         iter::InvBfsIter::new(self)
     }
 
+    pub fn inv_lev_bfs_iter(&'b self) -> iter::InvLevBfsIter<'a, 'b, T> {
+        iter::InvLevBfsIter::new(self)
+    }
+
     pub fn pre_dfs_iter(&'b self) -> iter::PreDfsIter<'a, 'b, T> {
         iter::PreDfsIter::new(self)
     }
