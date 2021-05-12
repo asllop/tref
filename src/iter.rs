@@ -127,6 +127,8 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for BfsIter<'a, 'b, T> {
     }
 }
 
+// Inverse BFS Iterator
+
 pub struct InvBfsIter<'a, 'b, T: tree::NodeContent> {
     tree: &'b tree::TreeModel<'a, T>,
     cua: Vec<u32>,

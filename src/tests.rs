@@ -17,7 +17,7 @@ fn tref_sample() -> BufReader<impl Read> {
 
 #[test]
 fn check_forest_integrity() {
-    let forest: Result<Forest<SimpleNode>, String> = Forest::new(tref_sample(), true);
+    let forest: Result<Forest<SimpleNode>, String> = Forest::build(tref_sample());
     match forest {
         Ok(forest) => {
             if let Some(tree_model) = forest.tree(&String::from("test_tree")) {
@@ -102,7 +102,7 @@ fn check_forest_integrity() {
 
 #[test]
 fn check_bfs_iter() {
-    let forest: Result<Forest<SimpleNode>, String> = Forest::new(tref_sample(), true);
+    let forest: Result<Forest<SimpleNode>, String> = Forest::build(tref_sample());
     match forest {
         Ok(forest) => {
             if let Some(tree_model) = forest.tree(&String::from("test_tree")) {
@@ -139,6 +139,8 @@ fn check_bfs_iter() {
 }
 
 //TODO: check all iterators
+
+//TODO: check both with and without levels struct
 
 #[test]
 fn check_dialect() {
@@ -183,7 +185,7 @@ fn check_dialect() {
     + + + 25:child_1_1\n\
     + + + + 12:child_1_1_1\n";
 
-    let forest: Result<Forest<WeightNode>, String> = Forest::new(BufReader::new(tref.as_bytes()), true);
+    let forest: Result<Forest<WeightNode>, String> = Forest::build(BufReader::new(tref.as_bytes()));
     match forest {
         Ok(forest) => {
             if let Some(tree_model) = forest.tree(&String::from("test_tree")) {
@@ -245,7 +247,7 @@ fn check_dialect_enum() {
     + + + 2500\n\
     + + + 130\n";
 
-    let forest: Result<Forest<NodeType>, String> = Forest::new(BufReader::new(tref.as_bytes()), true);
+    let forest: Result<Forest<NodeType>, String> = Forest::build(BufReader::new(tref.as_bytes()));
     match forest {
         Ok(forest) => {
             if let Some(tree_model) = forest.tree(&String::from("test_tree")) {

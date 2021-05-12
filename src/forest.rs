@@ -12,7 +12,20 @@ pub struct Forest<T: tree::NodeContent> {
 
 impl<T: tree::NodeContent> Forest<T> {
     //TODO: return an error type implementing the std::error::Error trait.
-    pub fn new(reader: BufReader<impl Read>, use_levels: bool) -> Result<Self, String> {
+
+    pub fn build(reader: BufReader<impl Read>) -> Result<Self, String> {
+        return Self::new(reader, false);
+    }
+
+    pub fn build_levels(reader: BufReader<impl Read>) -> Result<Self, String> {
+        return Self::new(reader, true);
+    }
+
+    pub fn tree(&self, tree_id: &String) -> Option<tree::TreeModel<T>> {
+        tree::TreeModel::new(self, tree_id)
+    }
+
+    fn new(reader: BufReader<impl Read>, use_levels: bool) -> Result<Self, String> {
         let parser = parser::TreeParser::new();
         let mut stack = stack::NodeStack::new();
         let mut prev_level:u32 = 0;
@@ -146,9 +159,5 @@ impl<T: tree::NodeContent> Forest<T> {
 
     fn get_mut_tree(&mut self, current_tree_id: &String) -> Option<&mut tree::Tree<T>> {
         self.trees.get_mut(current_tree_id)
-    }
-
-    pub fn tree(&self, tree_id: &String) -> Option<tree::TreeModel<T>> {
-        tree::TreeModel::new(self, tree_id)
     }
 }

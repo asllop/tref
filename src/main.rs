@@ -8,7 +8,7 @@ fn main() {
     let file_name = if let Some(cmd_arg_1) = args.get(1) { &cmd_arg_1[..] } else { "file.tref" };
 
     if let Ok(file) = File::open(file_name) {
-        let forest: Forest<SimpleNode> = match Forest::new(BufReader::new(file), true) {
+        let forest: Forest<SimpleNode> = match Forest::build_levels(BufReader::new(file)) {
             Ok(f) => f,
             Err(m) => panic!("Could not parse TREF: {}", m)
         };
