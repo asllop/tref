@@ -187,10 +187,11 @@ pub struct BfsIterSwitch<'a, 'b, T: tree::NodeContent> {
 
 impl<'a, 'b, T: tree::NodeContent> BfsIterSwitch<'a, 'b, T> {
     pub fn new(tree: &'b tree::TreeModel<'a, T>) -> Self {
+        let levels = if let Some(_) = tree.level_ref { true } else { false };
         Self {
-            levels: if let Some(_) = tree.level_ref { true } else { false },
-            iter: if let Some(_) = tree.level_ref { None } else { Some(BfsIter::new(tree)) },
-            level_iter: if let Some(_) = tree.level_ref { Some(level_iters::BfsIter::new(tree)) } else { None }
+            levels,
+            iter: if levels { None } else { Some(BfsIter::new(tree)) },
+            level_iter: if levels { Some(level_iters::BfsIter::new(tree)) } else { None }
         }
     }
 }
@@ -217,10 +218,11 @@ pub struct InvBfsIterSwitch<'a, 'b, T: tree::NodeContent> {
 
 impl<'a, 'b, T: tree::NodeContent> InvBfsIterSwitch<'a, 'b, T> {
     pub fn new(tree: &'b tree::TreeModel<'a, T>) -> Self {
+        let levels = if let Some(_) = tree.level_ref { true } else { false };
         Self {
-            levels: if let Some(_) = tree.level_ref { true } else { false },
-            iter: if let Some(_) = tree.level_ref { None } else { Some(InvBfsIter::new(tree)) },
-            level_iter: if let Some(_) = tree.level_ref { Some(level_iters::InvBfsIter::new(tree)) } else { None }
+            levels,
+            iter: if levels { None } else { Some(InvBfsIter::new(tree)) },
+            level_iter: if levels { Some(level_iters::InvBfsIter::new(tree)) } else { None }
         }
     }
 }
