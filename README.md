@@ -104,7 +104,7 @@ The `child_1` contains a node (`child_1_1`) of a non consecutive level (is shoul
 
 The node name format in TREF is intentionally permissive. After the initial plus signs, it basically accepts anything, any character, spaces, brackets... whatever. And the reason is **user defined dialects**.
 
-Imagine we have an application in which the weight of each vertex (node connection) is important. TREF doesn't provide a way to assign values to vertex, but the user can define a specific format in the node that can. It could be something like:
+Imagine we have an application in which the weight of each edge (node connection) is important. TREF doesn't provide a way to assign values to edges, but the user can define a specific format in the node that can. It could be something like:
 
 Filename: `example_6.tref`
 
