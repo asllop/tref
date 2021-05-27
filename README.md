@@ -46,7 +46,7 @@ A valid TREF file meets the following rules:
 2. Empty statements are allowed (with spaces, tabs and newlines).
 3. A comment statement must start with `#`, no spaces or tabs are allowed before it. After it any character is allowed.
 4. Tree names must be enclosed between brackets (`[]`) and no spaces or tabs are allowed. The tree name can only have letters (`A-Z`, `a-z`), numbers (`0-9`) and underlines (`_`).
-5. Tree nodes must start by, at least, one `+` followed by a space. After the last space it comes the node name, that can contain any character (even spaces or tabs), with the only limitation that the first character can't be a `+`.
+5. Tree nodes must start by, at least, one `+` followed by a space. After the last space it comes the node name, that can contain any character (even spaces or tabs), with the only limitation that the first character can't be a `+` or a space.
 6. There must be one tree name per tree, and it must come before the root node.
 7. A file can contain multiple trees, each one properly labeled with a tree name.
 8. Empty trees are permitted and are represented by a tree name with no nodes after it.
