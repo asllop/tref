@@ -1,4 +1,4 @@
-use std::io::{prelude::*, BufReader};
+use std::io::{prelude::*, BufReader, BufWriter};
 use std::collections::HashMap;
 use crate::tree;
 use crate::parser;
@@ -56,6 +56,34 @@ impl<T: tree::NodeContent> Forest<T> {
         }
         else {
             None
+        }
+    }
+
+    pub fn serialize(&self, mut buf_writer: BufWriter<impl Write>) -> bool {
+        for (tree_id, _) in self.trees.iter() {
+            // write tree id statement
+            if let Err(_) = buf_writer.write(&format!("[{}]\n", tree_id).as_bytes()) {
+                return false;
+            }
+            // iter all nodes and generate statements
+            let tree_model = self.tree(tree_id).unwrap();
+            for n in tree_model.pre_dfs_iter() {
+                let mut node_statement = String::new();
+                for _ in 0..n.level {
+                    node_statement.push_str("+ ");
+                }
+                node_statement.push_str(&format!("{}\n", n.content.get_content()));
+                // write node
+                if let Err(_) = buf_writer.write(node_statement.as_bytes()) {
+                    return false;
+                }
+            }
+        }
+        if let Err(_) = buf_writer.flush() {
+            false
+        }
+        else {
+            true
         }
     }
 

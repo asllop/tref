@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::BufReader;
+use std::io::{BufReader, BufWriter};
 use std::env;
 use tref::*;
 
@@ -25,12 +25,19 @@ fn main() {
     if let Some(tree_model) = forest.tree(&String::from("my_tree")) {
         println!("\nTraverse my_tree:");
         for n in tree_model.iter() {
-            println!("{}", n.content.get_content());
+            println!("{} ({})", n.content.get_content(), n.level);
         }
         println!("\nTraverse my_tree in Pre-DFS:");
         for n in tree_model.pre_dfs_iter() {
-            println!("{}", n.content.get_content());
+            println!("{} ({})", n.content.get_content(), n.level);
         }
+    }
+
+    let f = File::create("./serialized.tref").expect("Unable to create file");
+    let buf_writer = BufWriter::new(f);
+
+    if !forest.serialize(buf_writer) {
+        println!("Failed serializing tree");
     }
 }
 
