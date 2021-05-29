@@ -219,12 +219,12 @@ fn check_dialect() {
 #[test]
 fn check_dialect_enum() {
     #[derive(Debug)]
-    enum NodeType {
+    enum TypedNode {
         Text(String),
         Number(String, u32)
     }
 
-    impl NodeContent for NodeType {
+    impl NodeContent for TypedNode {
         fn new(content: String) -> Option<Self> {
             match content.trim().parse() {
                 Ok(num) => Some(Self::Number(content, num)),
@@ -247,7 +247,7 @@ fn check_dialect_enum() {
     + + + 2500\n\
     + + + 130\n";
 
-    let forest: Result<Forest<NodeType>, String> = Forest::build(BufReader::new(tref.as_bytes()));
+    let forest: Result<Forest<TypedNode>, String> = Forest::build(BufReader::new(tref.as_bytes()));
     match forest {
         Ok(forest) => {
             if let Some(tree_model) = forest.tree(&String::from("test_tree")) {
@@ -255,19 +255,19 @@ fn check_dialect_enum() {
                     match i {
                         0 => {
                             if !n.content.get_content().eq("root") { panic!("Wrong {} node content!", n.content.get_content()); }
-                            if let NodeType::Number(_,_) = n.content { panic!("Wrong {} node type!", n.content.get_content()); }
+                            if let TypedNode::Number(_,_) = n.content { panic!("Wrong {} node type!", n.content.get_content()); }
                         },
                         1 => {
                             if !n.content.get_content().eq("child") { panic!("Wrong {} node content!", n.content.get_content()); }
-                            if let NodeType::Number(_,_) = n.content { panic!("Wrong {} node type!", n.content.get_content()); }
+                            if let TypedNode::Number(_,_) = n.content { panic!("Wrong {} node type!", n.content.get_content()); }
                         },
                         2 => {
                             if !n.content.get_content().eq("2500") { panic!("Wrong {} node content!", n.content.get_content()); }
-                            if let NodeType::Text(_) = n.content { panic!("Wrong {} node type!", n.content.get_content()); }
+                            if let TypedNode::Text(_) = n.content { panic!("Wrong {} node type!", n.content.get_content()); }
                         },
                         3 => {
                             if !n.content.get_content().eq("130") { panic!("Wrong {} node content!", n.content.get_content()); }
-                            if let NodeType::Text(_) = n.content { panic!("Wrong {} node type!", n.content.get_content()); }
+                            if let TypedNode::Text(_) = n.content { panic!("Wrong {} node type!", n.content.get_content()); }
                         },
                         _ => {}
                     }
@@ -275,5 +275,52 @@ fn check_dialect_enum() {
             }
         },
         Err(msg) => panic!("ERROR = {}", msg)
+    }
+}
+
+
+#[test]
+fn check_generate() {
+    let mut forest: Forest<SimpleNode> = Forest::empty();
+    let tree_id = String::from("my_tree");
+    // Create new tree and root node
+    forest.new_tree(&tree_id, &String::from("root_node")).unwrap();
+    // Add 3 children to root
+    let _node_1 = forest.link_node(&tree_id, 0, &String::from("node_1")).unwrap();
+    let _node_2 = forest.link_node(&tree_id, 0, &String::from("node_2")).unwrap();
+    let _node_3 = forest.link_node(&tree_id, 0, &String::from("node_3")).unwrap();
+    // Add 1 child to node_3
+    let _node_3_1 = forest.link_node(&tree_id, _node_3, &String::from("node_3_1")).unwrap();
+    // Add 2 children to node_1
+    let _node_1_1 = forest.link_node(&tree_id, _node_1, &String::from("node_1_1")).unwrap();
+    let _node_1_2 = forest.link_node(&tree_id, _node_1, &String::from("node_1_2")).unwrap();
+
+    if let Some(tree_model) = forest.tree(&String::from("my_tree")) {
+        for (i,n) in tree_model.pre_dfs_iter().enumerate() {
+            match i {
+                0 => {
+                    if !n.content.get_content().eq("root_node") { panic!("Wrong {} node content!", n.content.get_content()); }
+                }
+                1 => {
+                    if !n.content.get_content().eq("node_1") { panic!("Wrong {} node content!", n.content.get_content()); }
+                }
+                2 => {
+                    if !n.content.get_content().eq("node_1_1") { panic!("Wrong {} node content!", n.content.get_content()); }
+                }
+                3 => {
+                    if !n.content.get_content().eq("node_1_2") { panic!("Wrong {} node content!", n.content.get_content()); }
+                }
+                4 => {
+                    if !n.content.get_content().eq("node_2") { panic!("Wrong {} node content!", n.content.get_content()); }
+                }
+                5 => {
+                    if !n.content.get_content().eq("node_3") { panic!("Wrong {} node content!", n.content.get_content()); }
+                }
+                6 => {
+                    if !n.content.get_content().eq("node_3_1") { panic!("Wrong {} node content!", n.content.get_content()); }
+                }
+                _ => {}
+            }
+        }
     }
 }

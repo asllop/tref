@@ -4,48 +4,23 @@ use std::env;
 use tref::*;
 
 fn main() {
-    println!("\nGenerate trees programatically\n");
-
-    let mut forest: Forest<SimpleNode> = Forest::empty();
-    let tree_id = String::from("my_tree");
-    // Create new tree and root node
-    forest.new_tree(&tree_id, &String::from("root_node")).unwrap();
-    // Add 3 children to root
-    let _node_1 = forest.link_node(&tree_id, 0, &String::from("node_1")).unwrap();
-    let _node_2 = forest.link_node(&tree_id, 0, &String::from("node_2")).unwrap();
-    let _node_3 = forest.link_node(&tree_id, 0, &String::from("node_3")).unwrap();
-    // Add 1 child to node_3
-    let _node_3_1 = forest.link_node(&tree_id, _node_3, &String::from("node_3_1")).unwrap();
-    // Add 2 children to node_1
-    let _node_1_1 = forest.link_node(&tree_id, _node_1, &String::from("node_1_1")).unwrap();
-    let _node_1_2 = forest.link_node(&tree_id, _node_1, &String::from("node_1_2")).unwrap();
-
-    println!("{:#?}", forest);
-
-    if let Some(tree_model) = forest.tree(&String::from("my_tree")) {
-        println!("\nTraverse my_tree:");
-        for n in tree_model.iter() {
-            println!("{} ({})", n.content.get_content(), n.level);
+    let args: Vec<String> = env::args().collect();
+    if let Some(cmd_arg_1) = args.get(1) {
+        if cmd_arg_1 == "ser" {
+            serialize_tref();
         }
-        println!("\nTraverse my_tree in Pre-DFS:");
-        for n in tree_model.pre_dfs_iter() {
-            println!("{} ({})", n.content.get_content(), n.level);
+        else {
+            parse_tref(args);
         }
     }
-
-    let f = File::create("./serialized.tref").expect("Unable to create file");
-    let buf_writer = BufWriter::new(f);
-
-    if !forest.serialize(buf_writer) {
-        println!("Failed serializing tree");
+    else {
+        parse_tref(args);
     }
 }
 
-#[allow(dead_code)]
-fn main_bak_1() {
-    let args: Vec<String> = env::args().collect();
+fn parse_tref(args: Vec<String>) {
     let file_name = if let Some(cmd_arg_1) = args.get(1) { &cmd_arg_1[..] } else { "file.tref" };
-
+    
     if let Ok(file) = File::open(file_name) {
         let forest: Forest<SimpleNode> = match Forest::build_levels(BufReader::new(file)) {
             Ok(f) => f,
@@ -105,5 +80,43 @@ fn main_bak_1() {
     }
     else {
         panic!("Could not read file {}", file_name);
+    }
+}
+
+fn serialize_tref() {
+    println!("\nGenerate trees programatically\n");
+
+    let mut forest: Forest<SimpleNode> = Forest::empty();
+    let tree_id = String::from("my_tree");
+    // Create new tree and root node
+    forest.new_tree(&tree_id, &String::from("root_node")).unwrap();
+    // Add 3 children to root
+    let _node_1 = forest.link_node(&tree_id, 0, &String::from("node_1")).unwrap();
+    let _node_2 = forest.link_node(&tree_id, 0, &String::from("node_2")).unwrap();
+    let _node_3 = forest.link_node(&tree_id, 0, &String::from("node_3")).unwrap();
+    // Add 1 child to node_3
+    let _node_3_1 = forest.link_node(&tree_id, _node_3, &String::from("node_3_1")).unwrap();
+    // Add 2 children to node_1
+    let _node_1_1 = forest.link_node(&tree_id, _node_1, &String::from("node_1_1")).unwrap();
+    let _node_1_2 = forest.link_node(&tree_id, _node_1, &String::from("node_1_2")).unwrap();
+
+    println!("{:#?}", forest);
+
+    if let Some(tree_model) = forest.tree(&String::from("my_tree")) {
+        println!("\nTraverse my_tree:");
+        for n in tree_model.iter() {
+            println!("{} ({})", n.content.get_content(), n.level);
+        }
+        println!("\nTraverse my_tree in Pre-DFS:");
+        for n in tree_model.pre_dfs_iter() {
+            println!("{} ({})", n.content.get_content(), n.level);
+        }
+    }
+
+    let f = File::create("./serialized.tref").expect("Unable to create file");
+    let buf_writer = BufWriter::new(f);
+
+    if !forest.serialize(buf_writer) {
+        println!("Failed serializing tree");
     }
 }
