@@ -29,18 +29,25 @@ impl<T: tree::NodeContent> Forest<T> {
         Forest { trees: HashMap::new(), levels: None }
     }
 
-    pub fn new_tree(&mut self, tree_id: &String, root_node_content: &String) -> Result<(), String> {
-        let mut tree = tree::Tree::new();
-        if tree.add_root_node(&root_node_content) {
-            self.add_tree(tree_id, tree);
-            Ok(())
+    pub fn new_tree(&mut self, tree_id: &String) {
+        self.add_tree(tree_id, tree::Tree::new());
+    }
+
+    pub fn set_root(&mut self, tree_id: &String, root_node_content: &String) -> Result<u32, String> {
+        if let Some(tree) = self.get_mut_tree(&tree_id) {
+            if tree.add_root_node(&root_node_content) {
+                Ok(0)
+            }
+            else {
+                Result::Err(String::from("Failed parsing root node"))
+            }
         }
         else {
-            Result::Err(String::from("Failed parsing root node"))
+            Result::Err(String::from("Tree ID not found"))
         }
     }
 
-    pub fn link_node(&mut self, tree_id: &String, node_index: u32, node_content: &String) -> Option<u32> {
+    pub fn link_node(&mut self, tree_id: &String, node_index: u32, node_content: &String) -> Result<u32, String> {
         if let Some(tree) = self.get_mut_tree(&tree_id) {
             if tree.nodes.len() > node_index as usize {
                 let parent_level = tree.nodes[node_index as usize].level;
@@ -48,14 +55,14 @@ impl<T: tree::NodeContent> Forest<T> {
                 let new_node = tree.add_node(&node_content, parent_level + 1, &parent_node_ref);
                 //Add child node to parent
                 tree.nodes[node_index as usize].children.push(new_node);
-                Some(new_node)
+                Ok(new_node)
             }
             else {
-                None
+                Result::Err(String::from("Node index not found"))
             }
         }
         else {
-            None
+            Result::Err(String::from("Tree ID not found"))
         }
     }
 

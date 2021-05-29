@@ -89,11 +89,12 @@ fn serialize_tref() {
     let mut forest: Forest<SimpleNode> = Forest::empty();
     let tree_id = String::from("my_tree");
     // Create new tree and root node
-    forest.new_tree(&tree_id, &String::from("root_node")).unwrap();
+    forest.new_tree(&tree_id);
+    let _root = forest.set_root(&tree_id, &String::from("root_node")).unwrap();
     // Add 3 children to root
-    let _node_1 = forest.link_node(&tree_id, 0, &String::from("node_1")).unwrap();
-    let _node_2 = forest.link_node(&tree_id, 0, &String::from("node_2")).unwrap();
-    let _node_3 = forest.link_node(&tree_id, 0, &String::from("node_3")).unwrap();
+    let _node_1 = forest.link_node(&tree_id, _root, &String::from("node_1")).unwrap();
+    let _node_2 = forest.link_node(&tree_id, _root, &String::from("node_2")).unwrap();
+    let _node_3 = forest.link_node(&tree_id, _root, &String::from("node_3")).unwrap();
     // Add 1 child to node_3
     let _node_3_1 = forest.link_node(&tree_id, _node_3, &String::from("node_3_1")).unwrap();
     // Add 2 children to node_1
