@@ -60,9 +60,16 @@ impl<T: tree::NodeContent> Forest<T> {
     }
 
     pub fn serialize(&self, mut buf_writer: BufWriter<impl Write>) -> bool {
+        let parser = parser::TreeParser::new();
         for (tree_id, _) in self.trees.iter() {
             // write tree id statement
-            if let Err(_) = buf_writer.write(&format!("[{}]\n", tree_id).as_bytes()) {
+            let tree_id_statement = format!("[{}]", tree_id);
+            if let parser::TreeStatement::TreeID(_) = parser.parse_statement(&tree_id_statement) {
+                if let Err(_) = buf_writer.write(&format!("{}\n",tree_id_statement).as_bytes()) {
+                    return false;
+                }
+            }
+            else {
                 return false;
             }
             // iter all nodes and generate statements
@@ -72,9 +79,14 @@ impl<T: tree::NodeContent> Forest<T> {
                 for _ in 0..n.level {
                     node_statement.push_str("+ ");
                 }
-                node_statement.push_str(&format!("{}\n", n.content.get_content()));
+                node_statement.push_str(&format!("{}", n.content.get_content()));
                 // write node
-                if let Err(_) = buf_writer.write(node_statement.as_bytes()) {
+                if let parser::TreeStatement::Node(_,_) = parser.parse_statement(&node_statement) {
+                    if let Err(_) = buf_writer.write(format!("{}\n", node_statement).as_bytes()) {
+                        return false;
+                    }
+                }
+                else {
                     return false;
                 }
             }
