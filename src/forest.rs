@@ -25,12 +25,46 @@ impl<T: tree::NodeContent> Forest<T> {
         tree::TreeModel::new(self, tree_id)
     }
 
+    pub fn empty() -> Self {
+        Forest { trees: HashMap::new(), levels: None }
+    }
+
+    pub fn new_tree(&mut self, tree_id: &String, root_node_content: &String) -> Result<(), String> {
+        let mut tree = tree::Tree::new();
+        if tree.add_root_node(&root_node_content) {
+            self.add_tree(tree_id, tree);
+            Ok(())
+        }
+        else {
+            Result::Err(String::from("Failed parsing root node"))
+        }
+    }
+
+    pub fn link_node(&mut self, tree_id: &String, node_index: u32, node_content: &String) -> Option<u32> {
+        if let Some(tree) = self.get_mut_tree(&tree_id) {
+            if tree.nodes.len() > node_index as usize {
+                let parent_level = tree.nodes[node_index as usize].level;
+                let parent_node_ref = stack::NodeStackContent::new(parent_level, node_index);
+                let new_node = tree.add_node(&node_content, parent_level + 1, &parent_node_ref);
+                //Add child node to parent
+                tree.nodes[node_index as usize].children.push(new_node);
+                Some(new_node)
+            }
+            else {
+                None
+            }
+        }
+        else {
+            None
+        }
+    }
+
     fn new(reader: BufReader<impl Read>, use_levels: bool) -> Result<Self, String> {
         let parser = parser::TreeParser::new();
         let mut stack = stack::NodeStack::new();
         let mut prev_level:u32 = 0;
         let mut current_tree_id = String::new();
-        let mut forest = Forest { trees: HashMap::new(), levels: None };
+        let mut forest = Forest::empty();
         let mut levels: HashMap<String, Vec<tree::TreeLevel>> = HashMap::new();
     
         for (i, l) in reader.lines().enumerate() {

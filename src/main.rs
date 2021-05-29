@@ -4,6 +4,38 @@ use std::env;
 use tref::*;
 
 fn main() {
+    println!("\nGenerate trees programatically\n");
+
+    let mut forest: Forest<SimpleNode> = Forest::empty();
+    let tree_id = String::from("my_tree");
+    // Create new tree and root node
+    forest.new_tree(&tree_id, &String::from("root_node")).unwrap();
+    // Add 3 children to root
+    let _node_1 = forest.link_node(&tree_id, 0, &String::from("node_1")).unwrap();
+    let _node_2 = forest.link_node(&tree_id, 0, &String::from("node_2")).unwrap();
+    let _node_3 = forest.link_node(&tree_id, 0, &String::from("node_3")).unwrap();
+    // Add 1 child to node_3
+    let _node_3_1 = forest.link_node(&tree_id, _node_3, &String::from("node_3_1")).unwrap();
+    // Add 2 children to node_1
+    let _node_1_1 = forest.link_node(&tree_id, _node_1, &String::from("node_1_1")).unwrap();
+    let _node_1_2 = forest.link_node(&tree_id, _node_1, &String::from("node_1_2")).unwrap();
+
+    println!("{:#?}", forest);
+
+    if let Some(tree_model) = forest.tree(&String::from("my_tree")) {
+        println!("\nTraverse my_tree:");
+        for n in tree_model.iter() {
+            println!("{}", n.content.get_content());
+        }
+        println!("\nTraverse my_tree in Pre-DFS:");
+        for n in tree_model.pre_dfs_iter() {
+            println!("{}", n.content.get_content());
+        }
+    }
+}
+
+#[allow(dead_code)]
+fn main_bak_1() {
     let args: Vec<String> = env::args().collect();
     let file_name = if let Some(cmd_arg_1) = args.get(1) { &cmd_arg_1[..] } else { "file.tref" };
 

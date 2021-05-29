@@ -81,6 +81,7 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for InvTreeIter<'a, 'b, T> {
 
 pub struct BfsIter<'a, 'b, T: tree::NodeContent> {
     tree: &'b tree::TreeModel<'a, T>,
+    // TODO: use std::collections::VecDeque instead of Vec
     cua: Vec<u32>,
     next: u32,
     finished: bool
@@ -131,6 +132,7 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for BfsIter<'a, 'b, T> {
 
 pub struct InvBfsIter<'a, 'b, T: tree::NodeContent> {
     tree: &'b tree::TreeModel<'a, T>,
+    // TODO: use std::collections::VecDeque instead of Vec
     cua: Vec<u32>,
     next: u32,
     finished: bool
@@ -502,6 +504,7 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for PostDfsIter<'a, 'b, T> {
             let push_children = next_node_tuple.1;
             // get node from tree
             if let Some(node) = self.tree.tree_ref.nodes.get(next as usize) {
+                // We already pushed children of this node. Return the node itself.
                 if !push_children {
                     return Some(node);
                 }
