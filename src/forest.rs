@@ -66,6 +66,61 @@ impl<T: tree::NodeContent> Forest<T> {
         }
     }
 
+    fn find_child(nodes: &Vec<tree::TreeNode<T>>, parent: u32, child_content: &String) -> Option<u32> {
+        if nodes.len() > parent as usize {
+            for n in &nodes[parent as usize].children {
+                if nodes.len() > *n as usize {
+                    if nodes[*n as usize].content.get_content() == child_content {
+                        return Some(*n);
+                    }
+                }
+            }
+        }
+        None
+    }
+
+    pub fn find_node(&self, tree_id: &String, path: Vec<String>) -> Option<u32> {
+        let mut current_node: u32 = 0;
+        let mut current_path_pos: u32 = 0;
+        if let Some(tree) = self.tree(&tree_id) {
+            // Check if root node matches
+            if path.len() > current_path_pos as usize {
+                if tree.tree_ref.nodes.len() > current_node as usize{
+                    if tree.tree_ref.nodes[current_node as usize].content.get_content() != &path[current_path_pos as usize] {
+                        return None;
+                    }
+                }
+                else {
+                    return None;
+                }
+            }
+            else {
+                return None;
+            }
+
+            // check the rest of nodes
+            loop {
+                current_path_pos = current_path_pos + 1;
+                if path.len() > current_path_pos as usize {
+                    if let Some(n) = Self::find_child(&tree.tree_ref.nodes, current_node, &path[current_path_pos as usize]) {
+                        current_node = n;
+                    }
+                    else {
+                        // Child not found
+                        return None;
+                    }
+                }
+                else {
+                    // End of path, return what we have
+                    return Some(current_node);
+                }
+            }
+        }
+        else {
+            return None;
+        }
+    }
+
     pub fn serialize(&self, mut buf_writer: BufWriter<impl Write>) -> bool {
         let parser = parser::TreeParser::new();
         for (tree_id, _) in self.trees.iter() {

@@ -371,3 +371,17 @@ fn check_modify_tree() {
         }
     }
 }
+
+#[test]
+fn check_find_node() {
+    let forest: Forest<SimpleNode> = Forest::build(tref_sample()).unwrap();
+    let child_2_1_1 = forest.find_node(&String::from("test_tree"), vec!(String::from("root_node"), String::from("child_2"), String::from("child_2_1"), String::from("child_2_1_1"))).unwrap();
+    let tree = forest.tree(&String::from("test_tree")).unwrap();
+    if tree.tree_ref.nodes[child_2_1_1 as usize].content.get_content() != &String::from("child_2_1_1") {
+        panic!("Child index incorrect");
+    }
+
+    if tree.tree_ref.nodes[child_2_1_1 as usize].level != 4 {
+        panic!("Child level incorrect");
+    }
+}
