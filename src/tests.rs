@@ -278,7 +278,6 @@ fn check_dialect_enum() {
     }
 }
 
-
 #[test]
 fn check_generate() {
     let mut forest: Forest<SimpleNode> = Forest::empty();
@@ -319,6 +318,53 @@ fn check_generate() {
                 }
                 6 => {
                     if !n.content.get_content().eq("node_3_1") { panic!("Wrong {} node content!", n.content.get_content()); }
+                }
+                _ => {}
+            }
+        }
+    }
+}
+
+#[test]
+fn check_modify_tree() {
+    let mut forest: Forest<SimpleNode> = Forest::build(tref_sample()).unwrap();
+    // Add new nodes to an existing forest parsed from a TREF file
+    let _child_4 = forest.link_node(&String::from("test_tree"), 0, &String::from("child_4")).unwrap();
+    let _child_4_1 = forest.link_node(&String::from("test_tree"), _child_4, &String::from("child_4_1")).unwrap();
+    let _child_4_2 = forest.link_node(&String::from("test_tree"), _child_4, &String::from("child_4_2")).unwrap();
+
+    if let Some(tree_model) = forest.tree(&String::from("test_tree")) {
+        for (i,n) in tree_model.pre_dfs_iter().enumerate() {
+            match i {
+                0 => {
+                    if !n.content.get_content().eq("root_node") { panic!("Wrong {} node content!", n.content.get_content()); }
+                }
+                1 => {
+                    if !n.content.get_content().eq("child_1") { panic!("Wrong {} node content!", n.content.get_content()); }
+                }
+                2 => {
+                    if !n.content.get_content().eq("child_2") { panic!("Wrong {} node content!", n.content.get_content()); }
+                }
+                3 => {
+                    if !n.content.get_content().eq("child_2_1") { panic!("Wrong {} node content!", n.content.get_content()); }
+                }
+                4 => {
+                    if !n.content.get_content().eq("child_2_1_1") { panic!("Wrong {} node content!", n.content.get_content()); }
+                }
+                5 => {
+                    if !n.content.get_content().eq("child_2_2") { panic!("Wrong {} node content!", n.content.get_content()); }
+                }
+                6 => {
+                    if !n.content.get_content().eq("child_3") { panic!("Wrong {} node content!", n.content.get_content()); }
+                }
+                7 => {
+                    if !n.content.get_content().eq("child_4") { panic!("Wrong {} node content!", n.content.get_content()); }
+                }
+                8 => {
+                    if !n.content.get_content().eq("child_4_1") { panic!("Wrong {} node content!", n.content.get_content()); }
+                }
+                9 => {
+                    if !n.content.get_content().eq("child_4_2") { panic!("Wrong {} node content!", n.content.get_content()); }
                 }
                 _ => {}
             }
