@@ -384,4 +384,22 @@ fn check_find_node() {
     if tree.tree_ref.nodes[child_2_1_1 as usize].level != 4 {
         panic!("Child level incorrect");
     }
+
+    // Check incorrect path (wrong root)
+    let x = forest.find_node(&String::from("test_tree"), vec!(String::from("wrong_root_node"), String::from("child_2"), String::from("child_2_1"), String::from("child_2_1_1")));
+    if let Some(_) = x {
+        panic!("Wrong path (root node), but returned a node");
+    }
+
+    // Check incorrect path (wrong middle node)
+    let x = forest.find_node(&String::from("test_tree"), vec!(String::from("root_node"), String::from("child_2"), String::from("wrong_child_2_1"), String::from("child_2_1_1")));
+    if let Some(_) = x {
+        panic!("Wrong path (middle node), but returned a node");
+    }
+
+    // Check incorrect path (wrong end node)
+    let x = forest.find_node(&String::from("test_tree"), vec!(String::from("root_node"), String::from("child_2"), String::from("child_2_1"), String::from("wrong_child_2_1_1")));
+    if let Some(_) = x {
+        panic!("Wrong path (end node), but returned a node");
+    }
 }

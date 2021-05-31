@@ -97,7 +97,6 @@ impl<T: tree::NodeContent> Forest<T> {
             else {
                 return None;
             }
-
             // check the rest of nodes
             loop {
                 current_path_pos = current_path_pos + 1;
