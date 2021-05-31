@@ -30,17 +30,12 @@ impl NodeStack {
 
     pub fn pop_parent(&mut self, level: u32) -> Option<NodeStackContent> {
         // Obtain data from stack until we get one node with a level lower than "level"
-        loop {
-            let n = self.pop();
-            if let Some(n_node) = n {
-                if n_node.level < level {
-                    return Some(n_node);
-                }
-            }
-            else {
-                return None;
+        while let Some(n_node) = self.pop() {
+            if n_node.level < level {
+                return Some(n_node);
             }
         }
+        None
     }
 
     pub fn flush(&mut self) {
