@@ -114,6 +114,21 @@ fn serialize_tref() {
         }
     }
 
+    forest.unlink_node(&tree_id, _node_1).unwrap();
+
+    println!("\nAfter unlinking node_1 {:#?}", forest);
+
+    if let Some(tree_model) = forest.tree(&String::from("my_tree")) {
+        println!("\nTraverse my_tree:");
+        for n in tree_model.iter() {
+            println!("{} ({})", n.content.get_content(), n.level);
+        }
+        println!("\nTraverse my_tree in Pre-DFS:");
+        for n in tree_model.pre_dfs_iter() {
+            println!("{} ({})", n.content.get_content(), n.level);
+        }
+    }
+
     let f = File::create("./serialized.tref").expect("Unable to create file");
     let buf_writer = BufWriter::new(f);
 

@@ -25,8 +25,8 @@ impl<T: NodeContent> Tree<T> {
         }
     }
 
-    pub fn add_node(&mut self, content: &String, level: u32, parent_node_ref: &stack::NodeStackContent) -> u32 {
-        if let Some(n) = TreeNode::new(&content, level, Some(parent_node_ref.tree_position)) {
+    pub fn add_node(&mut self, content: &String, level: u32, parent_node_ref: &stack::NodeStackContent, parent_children_pos: Option<u32>) -> u32 {
+        if let Some(n) = TreeNode::new(&content, level, Some(parent_node_ref.tree_position), parent_children_pos) {
             self.nodes.push(n);
             self.last_pos()
         }
@@ -75,17 +75,19 @@ pub struct TreeNode<T: NodeContent> {
     pub content: T,
     pub level: u32,
     pub parent_position: Option<u32>,
+    pub parent_children_pos: Option<u32>,
     pub children: Vec<u32>
 }
 
 impl<T: NodeContent> TreeNode<T> {
-    pub fn new(content: &String, level: u32, parent_position: Option<u32>) -> Option<Self> {
+    pub fn new(content: &String, level: u32, parent_position: Option<u32>, parent_children_pos: Option<u32>) -> Option<Self> {
         if let Some(c) = T::new(String::from(content)) {
             Some(
                 Self {
                     content: c,
                     level,
                     parent_position,
+                    parent_children_pos,
                     children: vec!()
                 }
             )
@@ -96,7 +98,7 @@ impl<T: NodeContent> TreeNode<T> {
     }
 
     pub fn new_root(content: &String) -> Option<Self> {
-        Self::new(content, 1, None)
+        Self::new(content, 1, None, None)
     }
 
     pub fn add_child_node(&mut self, new_node_position: u32) {

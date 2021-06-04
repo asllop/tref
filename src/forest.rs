@@ -52,10 +52,40 @@ impl<T: tree::NodeContent> Forest<T> {
             if tree.nodes.len() > node_index as usize {
                 let parent_level = tree.nodes[node_index as usize].level;
                 let parent_node_ref = stack::NodeStackContent::new(parent_level, node_index);
-                let new_node = tree.add_node(&node_content, parent_level + 1, &parent_node_ref);
+                let new_node = tree.add_node(&node_content, parent_level + 1, &parent_node_ref, Some(tree.nodes[node_index as usize].children.len() as u32));
                 //Add child node to parent
-                tree.nodes[node_index as usize].children.push(new_node);
+                tree.nodes[node_index as usize].add_child_node(new_node);
                 Ok(new_node)
+            }
+            else {
+                Result::Err(String::from("Node index not found"))
+            }
+        }
+        else {
+            Result::Err(String::from("Tree ID not found"))
+        }
+    }
+
+    pub fn unlink_node(&mut self, tree_id: &String, node_index: u32) -> Result<u32, String> {
+        if let Some(tree) = self.get_mut_tree(&tree_id) {
+            if tree.nodes.len() > node_index as usize {
+                if let Some(parent) = tree.nodes[node_index as usize].parent_position {
+                    if let Some(parent_children_pos) = tree.nodes[node_index as usize].parent_children_pos {
+                        if tree.nodes[parent as usize].children.len() > parent_children_pos as usize {
+                            tree.nodes[parent as usize].children.remove(parent_children_pos as usize);
+                            Ok(node_index)
+                        }
+                        else {
+                            Result::Err(String::from("Node not found in parent node children array"))
+                        }
+                    }
+                    else {
+                        Result::Err(String::from("parent_children_pos is none"))
+                    }
+                }
+                else {
+                    Result::Err(String::from("Trying to unlink the root node"))
+                }
             }
             else {
                 Result::Err(String::from("Node index not found"))
@@ -210,8 +240,15 @@ impl<T: tree::NodeContent> Forest<T> {
                         else {
                             if let Some(parent_node_ref) = stack.pop_parent(level) {
                                 if let Some(tree) = forest.get_mut_tree(&current_tree_id) {
+                                    let parent_children_pos;
+                                    if let Some(parent_node) = tree.get_mut_node(&parent_node_ref) {
+                                        parent_children_pos = Some(parent_node.children.len() as u32);
+                                    }
+                                    else {
+                                        return Result::Err(format!("Couldn't find a parent node at line {}", i + 1));
+                                    }
                                     // Put new node in the tree
-                                    let new_node_position = tree.add_node(&content, level, &parent_node_ref);
+                                    let new_node_position = tree.add_node(&content, level, &parent_node_ref, parent_children_pos);
                                     if new_node_position == 0 {
                                         return Result::Err(format!("Failed parsing node at line {}", i + 1));
                                     }
@@ -219,15 +256,8 @@ impl<T: tree::NodeContent> Forest<T> {
                                     if use_levels {
                                         Self::add_node_to_levels(&mut levels, &current_tree_id, level, new_node_position)?;
                                     }
-
                                     // Attach node to parent
-                                    if let Some(parent_node) = tree.get_mut_node(&parent_node_ref) {
-                                        parent_node.add_child_node(new_node_position);
-                                    }
-                                    else {
-                                        return Result::Err(format!("Couldn't find a parent node at line {}", i + 1));
-                                    }
-
+                                    tree.get_mut_node(&parent_node_ref).unwrap().add_child_node(new_node_position);
                                     // Push back parent node reference to stack
                                     stack.push(parent_node_ref);
                                     // Push new node reference to stack
