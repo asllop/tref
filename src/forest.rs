@@ -4,35 +4,151 @@ use crate::tree;
 use crate::parser;
 use crate::stack;
 
+/// Contains the interfaces to parse, generate, modify and serialize TREF files and memory structures.
 #[derive(Debug)]
 pub struct Forest<T: tree::NodeContent> {
+    /// Hash map with all the trees contained in the Forest.
     pub trees: HashMap<String, tree::Tree<T>>,
+    /// Optional hash map that contains information about tree levels, to accelerate and simplify some iterators.
     pub levels: Option<HashMap<String, Vec<tree::TreeLevel>>>
 }
 
+/// Generic `T` is a struct conforming to [`tree::NodeContent`] trait.
 impl<T: tree::NodeContent> Forest<T> {
-    //TODO: return an error type implementing the std::error::Error trait.
 
+    /// Parse a TREF file and generate a Forest (without [`Forest::levels`]).
+    /// 
+    /// # Arguments
+    /// 
+    /// * `reader` - Buffer reader where to obtsain the TREF file.
+    ///
+    /// # Return
+    /// 
+    /// * A [`Result`] with either the Forest representing the parsed TREF or a String describing an error.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// let buf_reader = ... // generate a std::io::BufReader
+    /// let forest: Result<Forest<SimpleNode>, String> = Forest::build(buf_reader);
+    /// match forest {
+    ///     Ok(forest) => {
+    ///         // Do whatever with the forest...
+    ///         // ...
+    ///     },
+    ///     Err(msg) => {
+    ///         println!("Error parsing file: {}", msg);
+    ///         // ...
+    ///     }
+    /// }
+    /// ```
+    /// 
     pub fn build(reader: BufReader<impl Read>) -> Result<Self, String> {
         return Self::new(reader, false);
     }
 
+    /// Parse a TREF file and generates a Forest with [`Forest::levels`].
+    /// 
+    /// # Arguments
+    /// 
+    /// * `reader` - Buffer reader where to obtsain the TREF file.
+    ///
+    /// # Return
+    /// 
+    /// * A [`Result`] with either the Forest representing the parsed TREF or a String describing an error.
+    /// 
+    /// # Examples
+    /// 
+    /// build_levels is used like [`Forest::build()`].
+    /// 
     pub fn build_levels(reader: BufReader<impl Read>) -> Result<Self, String> {
         return Self::new(reader, true);
     }
 
+    /// Returns a tree model.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `tree_id` - ID of the tree.
+    ///
+    /// # Return
+    /// 
+    /// * An [`Option`] with the tree model.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// let tree_id = &String::from("my_tree");
+    /// if let Some(tree_model) = forest.tree(tree_id) {
+    ///     // ...
+    /// }
+    /// else {
+    ///     println!("Tree with ID {} not found", tree_id);
+    /// }
+    /// ```
+    /// 
     pub fn tree(&self, tree_id: &String) -> Option<tree::TreeModel<T>> {
         tree::TreeModel::new(self, tree_id)
     }
 
+    /// Genereta an empty forest.
+    ///
+    /// # Return
+    /// 
+    /// * An empty Forest.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// let mut forest: Forest<SimpleNode> = Forest::empty();
+    /// ```
+    /// 
     pub fn empty() -> Self {
         Forest { trees: HashMap::new(), levels: None }
     }
 
+    /// Add a new empty tree to the forest.
+    ///
+    /// # Arguments
+    /// 
+    /// * `tree_id` - ID of the tree.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// let mut forest: Forest<SimpleNode> = Forest::empty();
+    /// 
+    /// // Create new empty tree
+    /// let tree_id = &String::from("my_tree");
+    /// forest.new_tree(tree_id)
+    /// ```
+    /// 
     pub fn new_tree(&mut self, tree_id: &String) {
         self.add_tree(tree_id, tree::Tree::new());
     }
 
+    /// Set the root node of a tree.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `tree_id` - ID of the tree.
+    /// * `root_node_content` - Content of the node.
+    ///
+    /// # Return
+    /// 
+    /// * A [`Result`] with either the index of the node created or a String describing an error.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// let mut forest: Forest<SimpleNode> = Forest::empty();
+    /// let tree_id = String::from("my_tree");
+    /// forest.new_tree(&tree_id);
+    /// 
+    /// // Set root node to tree
+    /// let _root = forest.set_root(&tree_id, &String::from("root_node")).unwrap();
+    /// ```
+    /// 
     pub fn set_root(&mut self, tree_id: &String, root_node_content: &String) -> Result<u32, String> {
         if let Some(tree) = self.get_mut_tree(&tree_id) {
             if tree.add_root_node(&root_node_content) {
@@ -47,6 +163,31 @@ impl<T: tree::NodeContent> Forest<T> {
         }
     }
 
+    /// Create a child node and link it to its parent.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `tree_id` - ID of the tree.
+    /// * `node_index` - Parent node index.
+    /// * `node_content` - Child node content.
+    ///
+    /// # Return
+    /// 
+    /// * A [`Result`] with either the index of the node created or a String describing an error.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// let mut forest: Forest<SimpleNode> = Forest::empty();
+    /// let tree_id = String::from("my_tree");
+    /// forest.new_tree(&tree_id);
+    /// let _root = forest.set_root(&tree_id, &String::from("root_node")).unwrap();
+    /// 
+    /// // Add two children to root node
+    /// let _node_1 = forest.link_node(&tree_id, _root, &String::from("node_1")).unwrap();
+    /// let _node_2 = forest.link_node(&tree_id, _root, &String::from("node_2")).unwrap();
+    /// ```
+    /// 
     pub fn link_node(&mut self, tree_id: &String, node_index: u32, node_content: &String) -> Result<u32, String> {
         if let Some(tree) = self.get_mut_tree(&tree_id) {
             if tree.nodes.len() > node_index as usize {
@@ -66,6 +207,31 @@ impl<T: tree::NodeContent> Forest<T> {
         }
     }
 
+    /// Unlink a child node.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `tree_id` - ID of the tree.
+    /// * `node_index` - Indedx of the node to unlink.
+    ///
+    /// # Return
+    /// 
+    /// * A [`Result`] with either the index of the unlinked node or a String describing an error.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// let mut forest: Forest<SimpleNode> = Forest::empty();
+    /// let tree_id = String::from("my_tree");
+    /// forest.new_tree(&tree_id);
+    /// let _root = forest.set_root(&tree_id, &String::from("root_node")).unwrap();
+    /// let _node_1 = forest.link_node(&tree_id, _root, &String::from("node_1")).unwrap();
+    /// let _node_2 = forest.link_node(&tree_id, _root, &String::from("node_2")).unwrap();
+    /// 
+    /// // Unlink node_1 from root node
+    /// forest.unlink_node(&tree_id, _node_1).unwrap();
+    /// ```
+    /// 
     pub fn unlink_node(&mut self, tree_id: &String, node_index: u32) -> Result<u32, String> {
         if let Some(tree) = self.get_mut_tree(&tree_id) {
             if tree.nodes.len() > node_index as usize {
@@ -109,6 +275,24 @@ impl<T: tree::NodeContent> Forest<T> {
         None
     }
 
+    /// Find a node specifing the path from the root.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `tree_id` - ID of the tree.
+    /// * `path` - Vector containing the nodes of the path.
+    ///
+    /// # Return
+    /// 
+    /// * An [`Option`] with the node index.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// // Path of node: root_node -> child_2 -> child_2_1 -> child_2_1_1
+    /// let child_2_1_1 = forest.find_node(&String::from("my_tree"), vec!(String::from("root_node"), String::from("child_2"), String::from("child_2_1"), String::from("child_2_1_1"))).unwrap();
+    /// ```
+    /// 
     pub fn find_node(&self, tree_id: &String, path: Vec<String>) -> Option<u32> {
         let mut current_node: u32 = 0;
         let mut current_path_pos: u32 = 0;
@@ -150,6 +334,27 @@ impl<T: tree::NodeContent> Forest<T> {
         }
     }
 
+    /// Convert a Forest structure into a TREF file.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `buf_writer` - BufWriter where to write the TREF.
+    ///
+    /// # Return
+    /// 
+    /// * A boolean, true if serialization was ok, false if not.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// let f = File::create("./serialized.tref").expect("Unable to create file");
+    /// let buf_writer = BufWriter::new(f);
+    /// 
+    /// if !forest.serialize(buf_writer) {
+    ///     println!("Failed serializing tree");
+    /// }
+    /// ```
+    /// 
     pub fn serialize(&self, mut buf_writer: BufWriter<impl Write>) -> bool {
         let parser = parser::TreeParser::new();
         for (tree_id, _) in self.trees.iter() {
