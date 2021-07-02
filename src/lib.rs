@@ -139,6 +139,7 @@ pub use forest::*;
 
 /*
 TODO:
+- All iterators must return a tuple with node and node index.
 - Methods that return a Result should generate an error type implementing the std::error::Error trait, instead of a simple String.
 - Allow using the BufReader directly to read data from the tree, instead of parsing and generating a model in mem. For very big trees.
 */

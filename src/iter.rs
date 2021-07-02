@@ -1,7 +1,5 @@
 use crate::tree;
 
-//TODO: all iterators must return a tuple with node and node index
-
 // Simple Iterator
 
 pub struct TreeIter<'a, 'b, T: tree::NodeContent> {
