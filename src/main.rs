@@ -129,10 +129,18 @@ fn serialize_tref() {
         }
     }
 
-    let f = File::create("./serialized.tref").expect("Unable to create file");
-    let buf_writer = BufWriter::new(f);
+    //let f = File::create("./serialized.tref").expect("Unable to create file");
+    //let buf_writer = BufWriter::new(f);
 
-    if !forest.serialize(buf_writer) {
+    let mut buf_writer = BufWriter::new(Vec::new());
+
+    if !forest.serialize(&mut buf_writer) {
         println!("Failed serializing tree");
+        return;
     }
+
+    let bytes = buf_writer.into_inner().unwrap();
+    let string = String::from_utf8(bytes).unwrap();
+
+    println!("\nSerialized into a string =\n\n{}", string);
 }

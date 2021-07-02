@@ -355,7 +355,7 @@ impl<T: tree::NodeContent> Forest<T> {
     /// }
     /// ```
     /// 
-    pub fn serialize(&self, mut buf_writer: BufWriter<impl Write>) -> bool {
+    pub fn serialize(&self, buf_writer: &mut BufWriter<impl Write>) -> bool {
         let parser = parser::TreeParser::new();
         for (tree_id, _) in self.trees.iter() {
             // write tree id statement
