@@ -348,7 +348,7 @@ impl<T: tree::NodeContent> Forest<T> {
     /// 
     /// ```
     /// let f = File::create("./serialized.tref").expect("Unable to create file");
-    /// let buf_writer = BufWriter::new(f);
+    /// let mut buf_writer = BufWriter::new(f);
     /// 
     /// if !forest.serialize(buf_writer) {
     ///     println!("Failed serializing TREF");

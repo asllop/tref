@@ -70,9 +70,9 @@
 //! let _node_1_2 = forest.link_node(&tree_id, _node_1, &String::from("node_1_2")).unwrap();
 //! // Serialize
 //! let f = File::create("serialized.tref").expect("Unable to create file");
-//! let buf_writer = BufWriter::new(f);
+//! let mut buf_writer = BufWriter::new(f);
 //! 
-//! if !forest.serialize(buf_writer) {
+//! if !forest.serialize(&buf_writer) {
 //!     println!("Failed serializing tree!");
 //! }
 //! ```
