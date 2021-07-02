@@ -120,6 +120,10 @@ Filename: `example_6.tref`
 
 When parsed, the user will receive a node where the identifier is a string like `99:child_1_1`, that will be able to parse and generate a custom object containing the desired data model.
 
+## Crate
+
+Checkout [crates.io](https://crates.io/crates/tref) for install instructions and other information.
+
 ## Examples
 
 Checkout files `src/main.rs` and `src/tests.rs` for usage examples. Also have a look at the documentation.
