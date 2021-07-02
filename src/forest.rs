@@ -4,7 +4,7 @@ use crate::tree;
 use crate::parser;
 use crate::stack;
 
-/// Contains the interfaces to parse, generate, modify and serialize TREF files and memory structures.
+/// Contains the interfaces to parse, generate, modify and serialize TREF models.
 #[derive(Debug)]
 pub struct Forest<T: tree::NodeContent> {
     /// Hash map with all the trees contained in the Forest.
@@ -13,10 +13,10 @@ pub struct Forest<T: tree::NodeContent> {
     pub levels: Option<HashMap<String, Vec<tree::TreeLevel>>>
 }
 
-/// Generic `T` is a struct conforming to [`tree::NodeContent`] trait.
+/// Generic `T` is a struct conforming to [`NodeContent`](`tree::NodeContent`) trait.
 impl<T: tree::NodeContent> Forest<T> {
 
-    /// Parse a TREF file and generate a Forest (without [`Forest::levels`]).
+    /// Parse a TREF file and generate a Forest (without [`levels`][`Forest::levels`]).
     /// 
     /// # Arguments
     /// 
@@ -47,7 +47,7 @@ impl<T: tree::NodeContent> Forest<T> {
         return Self::new(reader, false);
     }
 
-    /// Parse a TREF file and generates a Forest with [`Forest::levels`].
+    /// Parse a TREF file and generates a Forest with [`levels`][`Forest::levels`].
     /// 
     /// # Arguments
     /// 

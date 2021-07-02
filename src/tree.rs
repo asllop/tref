@@ -50,13 +50,34 @@ pub struct TreeLevel {
     pub node_positions: Vec<u32>
 }
 
+/// Trait to define structs that model a node content.
 pub trait NodeContent {
+    /// Constructor.
+    /// 
+    /// # Aeguments
+    /// 
+    /// * `content` - Node content.
+    /// 
+    /// # Return
+    /// 
+    /// * An [`Option`] with the node content.
+    /// 
     fn new(content: String) -> Option<Self> where Self: Sized;
+    /// Get the raw node content.
+    /// 
+    /// # Return
+    /// 
+    /// * Node content.
+    ///
     fn get_content(&self) -> &String;
 }
 
+/// Default [`NodeContent`] struct.
+/// 
+/// It simply holds the content as is, without parsing or modifying it.
 #[derive(Debug)]
 pub struct SimpleNode {
+    /// Node content.
     content: String
 }
 
