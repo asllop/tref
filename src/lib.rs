@@ -25,6 +25,12 @@
 //! 
 //! # Examples
 //! 
+//! To load this crate just use:
+//! 
+//! ```
+//! use tref::*;
+//! ```
+//! 
 //! Parse the `simpletree.tref` file and traverse `my_tree`:
 //! 
 //! ```
@@ -38,7 +44,7 @@
 //!     if let Some(tree_model) = forest.tree(&String::from("my_tree")) {
 //!         // Traverse the tree using the BFS algorithm.
 //!         for n in tree_model.bfs_iter() {
-//!             // Print the raw content of the node
+//!             // Print the node content
 //!             println!("{}", n.content.get_content());
 //!         }
 //!     }

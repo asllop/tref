@@ -63,7 +63,7 @@ pub trait NodeContent {
     /// * An [`Option`] with the node content.
     /// 
     fn new(content: String) -> Option<Self> where Self: Sized;
-    /// Get the raw node content.
+    /// Get node content.
     /// 
     /// # Return
     /// 
@@ -94,7 +94,7 @@ impl NodeContent for SimpleNode {
 /// Struct that contains a tree node.
 #[derive(Debug)]
 pub struct TreeNode<T: NodeContent> {
-    /// Raw node content.
+    /// Node content.
     pub content: T,
     /// Nodel level.
     pub level: u32,
@@ -232,7 +232,7 @@ impl<'a, 'b, T: NodeContent> TreeModel<'a, T> {
         iter::InvBfsIterSwitch::new(self)
     }
 
-    /// Create an iterator using the Inverse BFS algorithm, using the [`levels`][`Forest::levels`] structure.
+    /// Create an iterator using the Inverse Levels BFS algorithm. Only available if using the [`levels`][`Forest::levels`] structure.
     /// 
     /// # Examples
     /// 
@@ -242,7 +242,7 @@ impl<'a, 'b, T: NodeContent> TreeModel<'a, T> {
         iter::level_iters::InvLevBfsIter::new(self)
     }
 
-    /// Create an iterator using the DFS algorithm.
+    /// Create an iterator using the Pre-DFS algorithm.
     /// 
     /// # Examples
     /// 
@@ -252,7 +252,7 @@ impl<'a, 'b, T: NodeContent> TreeModel<'a, T> {
         iter::PreDfsIter::new(self)
     }
 
-    /// Create an iterator using the Pre-DFS algorithm.
+    /// Create an iterator using the Inverse Pre-DFS algorithm.
     /// 
     /// # Examples
     /// 
