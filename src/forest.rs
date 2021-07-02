@@ -37,7 +37,7 @@ impl<T: tree::NodeContent> Forest<T> {
     ///         // ...
     ///     },
     ///     Err(msg) => {
-    ///         println!("Error parsing file: {}", msg);
+    ///         println!("Error parsing TREF: {}", msg);
     ///         // ...
     ///     }
     /// }
@@ -351,7 +351,7 @@ impl<T: tree::NodeContent> Forest<T> {
     /// let buf_writer = BufWriter::new(f);
     /// 
     /// if !forest.serialize(buf_writer) {
-    ///     println!("Failed serializing tree");
+    ///     println!("Failed serializing TREF");
     /// }
     /// ```
     /// 

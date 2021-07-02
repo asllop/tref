@@ -91,12 +91,18 @@ impl NodeContent for SimpleNode {
     }
 }
 
+/// Struct that contains a tree node.
 #[derive(Debug)]
 pub struct TreeNode<T: NodeContent> {
+    /// Raw node content.
     pub content: T,
+    /// Nodel level.
     pub level: u32,
+    /// Parent node index in the tree array.
     pub parent_position: Option<u32>,
+    /// Index of current node in the parent [`children`][`TreeNode::children`] array.
     pub parent_children_pos: Option<u32>,
+    /// Array that contains indexes of of children nodes.
     pub children: Vec<u32>
 }
 
@@ -127,13 +133,27 @@ impl<T: NodeContent> TreeNode<T> {
     }
 }
 
+/// Struct that represents a tree.
 #[derive(Debug)]
 pub struct TreeModel<'a, T: NodeContent> {
+    /// Reference to the tree structure, contained in the [`Forest`].
     pub tree_ref:  &'a Tree<T>,
+    /// Reference to the tree levels structure, contained in the [`Forest`].
     pub level_ref: Option<&'a Vec<TreeLevel>>
 }
 
 impl<'a, 'b, T: NodeContent> TreeModel<'a, T> {
+    /// Create a new tree model.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `forest` - A [`Forest`] structure
+    /// * `tree_id` - ID of the tree.
+    ///
+    /// # Return
+    /// 
+    /// * An [`Option`] with the tree model.
+    /// 
     pub fn new(forest: &'a Forest<T>, tree_id: &String) -> Option<Self> {
         if let None = forest.trees.get(tree_id) {
             return None;
@@ -160,38 +180,104 @@ impl<'a, 'b, T: NodeContent> TreeModel<'a, T> {
         None
     }
 
+    /// Create an iterator using simple traversal.
+    /// 
+    /// It traverses the node array from the first position to the last, ignoring the tree structure.
+    /// 
+    /// The iterator returns instances of [`TreeNode`].
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// let forest = ... // Obtain a Forest structure
+    /// if let Some(tree_model) = forest.tree(&String::from("my_tree")) {
+    ///     for n in tree_model.iter() {
+    ///         println!("{}", n.content.get_content());
+    ///     }
+    /// }
+    /// ```
     pub fn iter(&'b self) -> iter::TreeIter<'a, 'b, T> {
         iter::TreeIter::new(self)
     }
 
+    /// Create an iterator using simple inverse traversal.
+    /// 
+    /// It traverses the node array from the last position to the first, ignoring the tree structure.
+    /// 
+    /// # Examples
+    /// 
+    /// Check [`iter()`][`TreeModel::iter()`], all iterators work the same way.
+    /// 
     pub fn inv_iter(&'b self) -> iter::InvTreeIter<'a, 'b, T> {
         iter::InvTreeIter::new(self)
     }
 
+    /// Create an iterator using the BFS algorithm.
+    /// 
+    /// # Examples
+    /// 
+    /// Check [`iter()`][`TreeModel::iter()`], all iterators work the same way.
+    /// 
     pub fn bfs_iter(&'b self) -> iter::BfsIterSwitch<'a, 'b, T> {
         iter::BfsIterSwitch::new(self)
     }
 
+    /// Create an iterator using the Inverse BFS algorithm.
+    /// 
+    /// # Examples
+    /// 
+    /// Check [`iter()`][`TreeModel::iter()`], all iterators work the same way.
+    /// 
     pub fn inv_bfs_iter(&'b self) -> iter::InvBfsIterSwitch<'a, 'b, T> {
         iter::InvBfsIterSwitch::new(self)
     }
 
+    /// Create an iterator using the Inverse BFS algorithm, using the [`levels`][`Forest::levels`] structure.
+    /// 
+    /// # Examples
+    /// 
+    /// Check [`iter()`][`TreeModel::iter()`], all iterators work the same way.
+    /// 
     pub fn inv_lev_bfs_iter(&'b self) -> iter::level_iters::InvLevBfsIter<'a, 'b, T> {
         iter::level_iters::InvLevBfsIter::new(self)
     }
 
+    /// Create an iterator using the DFS algorithm.
+    /// 
+    /// # Examples
+    /// 
+    /// Check [`iter()`][`TreeModel::iter()`], all iterators work the same way.
+    /// 
     pub fn pre_dfs_iter(&'b self) -> iter::PreDfsIter<'a, 'b, T> {
         iter::PreDfsIter::new(self)
     }
 
+    /// Create an iterator using the Pre-DFS algorithm.
+    /// 
+    /// # Examples
+    /// 
+    /// Check [`iter()`][`TreeModel::iter()`], all iterators work the same way.
+    /// 
     pub fn inv_pre_dfs_iter(&'b self) -> iter::InvPreDfsIter<'a, 'b, T> {
         iter::InvPreDfsIter::new(self)
     }
 
+    /// Create an iterator using the Post-DFS algorithm.
+    /// 
+    /// # Examples
+    /// 
+    /// Check [`iter()`][`TreeModel::iter()`], all iterators work the same way.
+    /// 
     pub fn post_dfs_iter(&'b self) -> iter::PostDfsIter<'a, 'b, T> {
         iter::PostDfsIter::new(self)
     }
 
+    /// Create an iterator using the Inverse Post-DFS algorithm.
+    /// 
+    /// # Examples
+    /// 
+    /// Check [`iter()`][`TreeModel::iter()`], all iterators work the same way.
+    /// 
     pub fn inv_post_dfs_iter(&'b self) -> iter::InvPostDfsIter<'a, 'b, T> {
         iter::InvPostDfsIter::new(self)
     }

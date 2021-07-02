@@ -16,7 +16,7 @@ mod tree;
 mod iter;
 mod forest;
 
-pub use tree::{NodeContent, SimpleNode};
+pub use tree::{NodeContent, SimpleNode, TreeModel, TreeNode};
 pub use forest::*;
 
 /*
