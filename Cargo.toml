@@ -1,6 +1,6 @@
 [package]
 name = "tref"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Andreu Santaren Llop <andreu.santaren@gmail.com>"]
 edition = "2018"
 description = "Tree in Rows Elemental Format (TREF). Crate to generate, store, traverse and serialize trees."
