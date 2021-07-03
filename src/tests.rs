@@ -1,4 +1,4 @@
-use std::io::BufReader;
+use std::io::{BufReader, BufWriter};
 use std::io::prelude::*;
 use crate::{NodeContent, SimpleNode, Forest};
 
@@ -402,4 +402,31 @@ fn check_find_node() {
     if let Some(_) = x {
         panic!("Wrong path (end node), but returned a node");
     }
+}
+
+#[test]
+fn check_serialize() {
+    // Parse tref_sample
+    let forest1: Forest<SimpleNode> = Forest::build(tref_sample()).unwrap();
+    // Serialize it
+    let mut buf_writer = BufWriter::new(Vec::new());
+    if !forest1.serialize(&mut buf_writer) {
+        panic!("TREF serialization failed");
+    }
+    // Parse the serialized TREF
+    let bytes = buf_writer.into_inner().unwrap();
+    let buf_reader = BufReader::new(&bytes[..]);
+    let forest2: Forest<SimpleNode> = Forest::build(buf_reader).unwrap();
+    // Compare the two models
+    let mut bfs_nodes1 = Vec::new();
+    let tree_model1 = forest1.tree(&String::from("test_tree")).unwrap();
+    for n in tree_model1.bfs_iter() {
+        bfs_nodes1.push(n.content.get_content());
+    }
+    let mut bfs_nodes2 = Vec::new();
+    let tree_model2 = forest2.tree(&String::from("test_tree")).unwrap();
+    for n in tree_model2.bfs_iter() {
+        bfs_nodes2.push(n.content.get_content());
+    }
+    assert_eq!(bfs_nodes1, bfs_nodes2);
 }

@@ -72,7 +72,7 @@
 //! let f = File::create("serialized.tref").expect("Unable to create file");
 //! let mut buf_writer = BufWriter::new(f);
 //! 
-//! if !forest.serialize(&buf_writer) {
+//! if !forest.serialize(&mut buf_writer) {
 //!     println!("Failed serializing tree!");
 //! }
 //! ```
