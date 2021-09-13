@@ -191,7 +191,7 @@ impl<'a, 'b, T: NodeContent> TreeModel<'a, T> {
     /// ```
     /// let forest = ... // Obtain a Forest structure
     /// if let Some(tree_model) = forest.tree("my_tree") {
-    ///     for n in tree_model.iter() {
+    ///     for (n, _) in tree_model.iter() {
     ///         println!("{}", n.content.get_content());
     ///     }
     /// }

@@ -31,49 +31,49 @@ fn parse_tref(args: Vec<String>) {
 
         if let Some(tree_model) = forest.tree("my_tree") {
             println!("\nTraverse my_tree:");
-            for n in tree_model.iter() {
+            for (n, _) in tree_model.iter() {
                 println!("{}", n.content.get_content());
             }
 
             println!("\nTraverse my_tree in BFS:");
-            for n in tree_model.bfs_iter() {
+            for (n, _) in tree_model.bfs_iter() {
                 println!("{}", n.content.get_content());
             }
 
             println!("\nTraverse my_tree in Inverse BFS:");
-            for n in tree_model.inv_bfs_iter() {
+            for (n, _) in tree_model.inv_bfs_iter() {
                 println!("{}", n.content.get_content());
             }
 
             println!("\nTraverse my_tree in Inverse Level BFS:");
-            for n in tree_model.inv_lev_bfs_iter() {
+            for (n, _) in tree_model.inv_lev_bfs_iter() {
                 println!("{}", n.content.get_content());
             }
 
             println!("\nTraverse my_tree in Pre-DFS:");
-            for n in tree_model.pre_dfs_iter() {
+            for (n, _) in tree_model.pre_dfs_iter() {
                 println!("{}", n.content.get_content());
             }
         }
 
         if let Some(tree_model) = forest.tree("wp_tree") {
             println!("\nTraverse wp_tree:");
-            for n in tree_model.iter() {
+            for (n, _) in tree_model.iter() {
                 println!("{}", n.content.get_content());
             }
 
             println!("\nTraverse wp_tree in Inverse Pre-DFS:");
-            for n in tree_model.inv_pre_dfs_iter() {
+            for (n, _) in tree_model.inv_pre_dfs_iter() {
                 println!("{}", n.content.get_content());
             }
 
             println!("\nTraverse wp_tree in Post-DFS:");
-            for n in tree_model.post_dfs_iter() {
+            for (n, _) in tree_model.post_dfs_iter() {
                 println!("{}", n.content.get_content());
             }
 
             println!("\nTraverse wp_tree in Inverse Post-DFS:");
-            for n in tree_model.inv_post_dfs_iter() {
+            for (n, _) in tree_model.inv_post_dfs_iter() {
                 println!("{}", n.content.get_content());
             }
         }
@@ -104,11 +104,11 @@ fn serialize_tref() {
 
     if let Some(tree_model) = forest.tree("my_tree") {
         println!("\nTraverse my_tree:");
-        for n in tree_model.iter() {
+        for (n, _) in tree_model.iter() {
             println!("{} ({})", n.content.get_content(), n.level);
         }
         println!("\nTraverse my_tree in Pre-DFS:");
-        for n in tree_model.pre_dfs_iter() {
+        for (n, _) in tree_model.pre_dfs_iter() {
             println!("{} ({})", n.content.get_content(), n.level);
         }
     }
@@ -119,11 +119,11 @@ fn serialize_tref() {
 
     if let Some(tree_model) = forest.tree("my_tree") {
         println!("\nTraverse my_tree:");
-        for n in tree_model.iter() {
+        for (n, _) in tree_model.iter() {
             println!("{} ({})", n.content.get_content(), n.level);
         }
         println!("\nTraverse my_tree in Pre-DFS:");
-        for n in tree_model.pre_dfs_iter() {
+        for (n, _) in tree_model.pre_dfs_iter() {
             println!("{} ({})", n.content.get_content(), n.level);
         }
     }

@@ -43,7 +43,7 @@
 //!     // Get the `my_tree` model.
 //!     if let Some(tree_model) = forest.tree("my_tree") {
 //!         // Traverse the tree using the BFS algorithm.
-//!         for n in tree_model.bfs_iter() {
+//!         for (n, _) in tree_model.bfs_iter() {
 //!             // Print the node content
 //!             println!("{}", n.content.get_content());
 //!         }

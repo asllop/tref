@@ -1,6 +1,6 @@
 use std::io::{BufReader, BufWriter};
 use std::io::prelude::*;
-use crate::{NodeContent, SimpleNode, Forest};
+use crate::{NodeContent, SimpleNode, Forest, TreeNode, TreeModel};
 
 fn tref_sample() -> BufReader<impl Read> {
     let tref =
@@ -21,7 +21,7 @@ fn check_forest_integrity() {
     match forest {
         Ok(forest) => {
             if let Some(tree_model) = forest.tree(&String::from("test_tree")) {
-                for (i,n) in tree_model.iter().enumerate() {
+                for (i, (n, _)) in tree_model.iter().enumerate() {
                     match i {
                         0 => {
                             if !n.content.get_content().eq("root_node") { panic!("Wrong root_node content!"); }
@@ -106,7 +106,7 @@ fn check_bfs_iter() {
     match forest {
         Ok(forest) => {
             if let Some(tree_model) = forest.tree(&String::from("test_tree")) {
-                for (i,n) in tree_model.bfs_iter().enumerate() {
+                for (i, (n, _)) in tree_model.bfs_iter().enumerate() {
                     match i {
                         0 => {
                             if !n.content.get_content().eq("root_node") { panic!("Wrong {} node position in BFS!", n.content.get_content()); }
@@ -189,7 +189,7 @@ fn check_dialect() {
     match forest {
         Ok(forest) => {
             if let Some(tree_model) = forest.tree(&String::from("test_tree")) {
-                for (i,n) in tree_model.iter().enumerate() {
+                for (i, (n, _)) in tree_model.iter().enumerate() {
                     match i {
                         0 => {
                             if !n.content.get_content().eq("root_node") { panic!("Wrong {} node content!", n.content.get_content()); }
@@ -251,7 +251,7 @@ fn check_dialect_enum() {
     match forest {
         Ok(forest) => {
             if let Some(tree_model) = forest.tree(&String::from("test_tree")) {
-                for (i,n) in tree_model.iter().enumerate() {
+                for (i, (n, _)) in tree_model.iter().enumerate() {
                     match i {
                         0 => {
                             if !n.content.get_content().eq("root") { panic!("Wrong {} node content!", n.content.get_content()); }
@@ -296,7 +296,7 @@ fn check_generate() {
     let _node_1_2 = forest.link_node(&tree_id, _node_1, &String::from("node_1_2")).unwrap();
 
     if let Some(tree_model) = forest.tree(&String::from("my_tree")) {
-        for (i,n) in tree_model.pre_dfs_iter().enumerate() {
+        for (i, (n, _)) in tree_model.pre_dfs_iter().enumerate() {
             match i {
                 0 => {
                     if !n.content.get_content().eq("root_node") { panic!("Wrong {} node content!", n.content.get_content()); }
@@ -334,7 +334,7 @@ fn check_modify_tree() {
     let _child_4_2 = forest.link_node(&String::from("test_tree"), _child_4, &String::from("child_4_2")).unwrap();
 
     if let Some(tree_model) = forest.tree(&String::from("test_tree")) {
-        for (i,n) in tree_model.pre_dfs_iter().enumerate() {
+        for (i, (n, _)) in tree_model.pre_dfs_iter().enumerate() {
             match i {
                 0 => {
                     if !n.content.get_content().eq("root_node") { panic!("Wrong {} node content!", n.content.get_content()); }
@@ -420,13 +420,58 @@ fn check_serialize() {
     // Compare the two models
     let mut bfs_nodes1 = Vec::new();
     let tree_model1 = forest1.tree(&String::from("test_tree")).unwrap();
-    for n in tree_model1.bfs_iter() {
+    for (n, _) in tree_model1.bfs_iter() {
         bfs_nodes1.push(n.content.get_content());
     }
     let mut bfs_nodes2 = Vec::new();
     let tree_model2 = forest2.tree(&String::from("test_tree")).unwrap();
-    for n in tree_model2.bfs_iter() {
+    for (n, _) in tree_model2.bfs_iter() {
         bfs_nodes2.push(n.content.get_content());
     }
     assert_eq!(bfs_nodes1, bfs_nodes2);
+}
+
+#[test]
+fn check_node_pos() {
+    let forest: Result<Forest<SimpleNode>, String> = Forest::build(tref_sample());
+    match forest {
+        Ok(forest) => {
+            let check_node = |n: &TreeNode<SimpleNode>, pos: usize, tree_model: &TreeModel<SimpleNode>| {
+                let n_prima = tree_model.tree_ref.nodes.get(pos).unwrap();
+                assert_eq!(n.level, n_prima.level);
+                assert_eq!(n.parent_position, n_prima.parent_position);
+            };
+
+            if let Some(tree_model) = forest.tree("test_tree") {
+                for (n, pos) in tree_model.iter() {
+                    check_node(n, pos, &tree_model);
+                }
+                for (n, pos) in tree_model.inv_iter() {
+                    check_node(n, pos, &tree_model);
+                }
+                for (n, pos) in tree_model.bfs_iter() {
+                    check_node(n, pos, &tree_model);
+                }
+                for (n, pos) in tree_model.inv_bfs_iter() {
+                    check_node(n, pos, &tree_model);
+                }
+                for (n, pos) in tree_model.inv_lev_bfs_iter() {
+                    check_node(n, pos, &tree_model);
+                }
+                for (n, pos) in tree_model.pre_dfs_iter() {
+                    check_node(n, pos, &tree_model);
+                }
+                for (n, pos) in tree_model.inv_pre_dfs_iter() {
+                    check_node(n, pos, &tree_model);
+                }
+                for (n, pos) in tree_model.post_dfs_iter() {
+                    check_node(n, pos, &tree_model);
+                }
+                for (n, pos) in tree_model.inv_post_dfs_iter() {
+                    check_node(n, pos, &tree_model);
+                }
+            }
+        },
+        Err(msg) => panic!("ERROR = {}", msg)
+    }
 }

@@ -368,7 +368,7 @@ impl<T: tree::NodeContent> Forest<T> {
             }
             // iter all nodes and generate statements
             let tree_model = self.tree(tree_id).unwrap();
-            for n in tree_model.pre_dfs_iter() {
+            for (n, _) in tree_model.pre_dfs_iter() {
                 let mut node_statement = String::new();
                 for _ in 0..n.level {
                     node_statement.push_str("+ ");
