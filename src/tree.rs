@@ -15,7 +15,7 @@ impl<T: NodeContent> Tree<T> {
         }
     }
 
-    pub fn add_root_node(&mut self, content: &String) -> bool {
+    pub fn add_root_node(&mut self, content: &str) -> bool {
         if let Some(n) = TreeNode::new_root(content) {
             self.nodes.push(n);
             true
@@ -25,7 +25,7 @@ impl<T: NodeContent> Tree<T> {
         }
     }
 
-    pub fn add_node(&mut self, content: &String, level: u32, parent_node_ref: &stack::NodeStackContent, parent_children_pos: Option<u32>) -> u32 {
+    pub fn add_node(&mut self, content: &str, level: u32, parent_node_ref: &stack::NodeStackContent, parent_children_pos: Option<u32>) -> u32 {
         if let Some(n) = TreeNode::new(&content, level, Some(parent_node_ref.tree_position), parent_children_pos) {
             self.nodes.push(n);
             self.last_pos()
@@ -69,7 +69,7 @@ pub trait NodeContent {
     /// 
     /// * Node content.
     ///
-    fn get_content(&self) -> &String;
+    fn get_content(&self) -> &str;
 }
 
 /// Default [`NodeContent`] struct.
@@ -86,7 +86,7 @@ impl NodeContent for SimpleNode {
         Some(Self { content })
     }
 
-    fn get_content(&self) -> &String {
+    fn get_content(&self) -> &str {
         &self.content
     }
 }
@@ -107,7 +107,7 @@ pub struct TreeNode<T: NodeContent> {
 }
 
 impl<T: NodeContent> TreeNode<T> {
-    pub fn new(content: &String, level: u32, parent_position: Option<u32>, parent_children_pos: Option<u32>) -> Option<Self> {
+    pub fn new(content: &str, level: u32, parent_position: Option<u32>, parent_children_pos: Option<u32>) -> Option<Self> {
         if let Some(c) = T::new(String::from(content)) {
             Some(
                 Self {
@@ -124,7 +124,7 @@ impl<T: NodeContent> TreeNode<T> {
         }
     }
 
-    pub fn new_root(content: &String) -> Option<Self> {
+    pub fn new_root(content: &str) -> Option<Self> {
         Self::new(content, 1, None, None)
     }
 
@@ -154,7 +154,7 @@ impl<'a, 'b, T: NodeContent> TreeModel<'a, T> {
     /// 
     /// * An [`Option`] with the tree model.
     /// 
-    pub fn new(forest: &'a Forest<T>, tree_id: &String) -> Option<Self> {
+    pub fn new(forest: &'a Forest<T>, tree_id: &str) -> Option<Self> {
         if let None = forest.trees.get(tree_id) {
             return None;
         }
@@ -190,7 +190,7 @@ impl<'a, 'b, T: NodeContent> TreeModel<'a, T> {
     /// 
     /// ```
     /// let forest = ... // Obtain a Forest structure
-    /// if let Some(tree_model) = forest.tree(&String::from("my_tree")) {
+    /// if let Some(tree_model) = forest.tree("my_tree") {
     ///     for n in tree_model.iter() {
     ///         println!("{}", n.content.get_content());
     ///     }

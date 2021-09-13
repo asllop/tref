@@ -29,7 +29,7 @@ fn parse_tref(args: Vec<String>) {
 
         println!("{:#?}", forest);
 
-        if let Some(tree_model) = forest.tree(&String::from("my_tree")) {
+        if let Some(tree_model) = forest.tree("my_tree") {
             println!("\nTraverse my_tree:");
             for n in tree_model.iter() {
                 println!("{}", n.content.get_content());
@@ -56,7 +56,7 @@ fn parse_tref(args: Vec<String>) {
             }
         }
 
-        if let Some(tree_model) = forest.tree(&String::from("wp_tree")) {
+        if let Some(tree_model) = forest.tree("wp_tree") {
             println!("\nTraverse wp_tree:");
             for n in tree_model.iter() {
                 println!("{}", n.content.get_content());
@@ -87,23 +87,22 @@ fn serialize_tref() {
     println!("\nGenerate trees programatically\n");
 
     let mut forest: Forest<SimpleNode> = Forest::empty();
-    let tree_id = String::from("my_tree");
     // Create new tree and root node
-    forest.new_tree(&tree_id);
-    let _root = forest.set_root(&tree_id, &String::from("root_node")).unwrap();
+    forest.new_tree("my_tree");
+    let _root = forest.set_root("my_tree", "root_node").unwrap();
     // Add 3 children to root
-    let _node_1 = forest.link_node(&tree_id, _root, &String::from("node_1")).unwrap();
-    let _node_2 = forest.link_node(&tree_id, _root, &String::from("node_2")).unwrap();
-    let _node_3 = forest.link_node(&tree_id, _root, &String::from("node_3")).unwrap();
+    let _node_1 = forest.link_node("my_tree", _root, "node_1").unwrap();
+    let _node_2 = forest.link_node("my_tree", _root, "node_2").unwrap();
+    let _node_3 = forest.link_node("my_tree", _root, "node_3").unwrap();
     // Add 1 child to node_3
-    let _node_3_1 = forest.link_node(&tree_id, _node_3, &String::from("node_3_1")).unwrap();
+    let _node_3_1 = forest.link_node("my_tree", _node_3, "node_3_1").unwrap();
     // Add 2 children to node_1
-    let _node_1_1 = forest.link_node(&tree_id, _node_1, &String::from("node_1_1")).unwrap();
-    let _node_1_2 = forest.link_node(&tree_id, _node_1, &String::from("node_1_2")).unwrap();
+    let _node_1_1 = forest.link_node("my_tree", _node_1, "node_1_1").unwrap();
+    let _node_1_2 = forest.link_node("my_tree", _node_1, "node_1_2").unwrap();
 
     println!("{:#?}", forest);
 
-    if let Some(tree_model) = forest.tree(&String::from("my_tree")) {
+    if let Some(tree_model) = forest.tree("my_tree") {
         println!("\nTraverse my_tree:");
         for n in tree_model.iter() {
             println!("{} ({})", n.content.get_content(), n.level);
@@ -114,11 +113,11 @@ fn serialize_tref() {
         }
     }
 
-    forest.unlink_node(&tree_id, _node_1).unwrap();
+    forest.unlink_node("my_tree", _node_1).unwrap();
 
     println!("\nAfter unlinking node_1 {:#?}", forest);
 
-    if let Some(tree_model) = forest.tree(&String::from("my_tree")) {
+    if let Some(tree_model) = forest.tree("my_tree") {
         println!("\nTraverse my_tree:");
         for n in tree_model.iter() {
             println!("{} ({})", n.content.get_content(), n.level);

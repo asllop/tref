@@ -41,7 +41,7 @@
 //!     };
 //! 
 //!     // Get the `my_tree` model.
-//!     if let Some(tree_model) = forest.tree(&String::from("my_tree")) {
+//!     if let Some(tree_model) = forest.tree("my_tree") {
 //!         // Traverse the tree using the BFS algorithm.
 //!         for n in tree_model.bfs_iter() {
 //!             // Print the node content
@@ -58,16 +58,16 @@
 //! // Create new tree and root node
 //! let tree_id = String::from("my_tree");
 //! forest.new_tree(&tree_id);
-//! let _root = forest.set_root(&tree_id, &String::from("root_node")).unwrap();
+//! let _root = forest.set_root(&tree_id, "root_node").unwrap();
 //! // Add 3 children to root
-//! let _node_1 = forest.link_node(&tree_id, _root, &String::from("node_1")).unwrap();
-//! let _node_2 = forest.link_node(&tree_id, _root, &String::from("node_2")).unwrap();
-//! let _node_3 = forest.link_node(&tree_id, _root, &String::from("node_3")).unwrap();
+//! let _node_1 = forest.link_node(&tree_id, _root, "node_1").unwrap();
+//! let _node_2 = forest.link_node(&tree_id, _root, "node_2").unwrap();
+//! let _node_3 = forest.link_node(&tree_id, _root, "node_3").unwrap();
 //! // Add 1 child to node_3
-//! let _node_3_1 = forest.link_node(&tree_id, _node_3, &String::from("node_3_1")).unwrap();
+//! let _node_3_1 = forest.link_node(&tree_id, _node_3, "node_3_1").unwrap();
 //! // Add 2 children to node_1
-//! let _node_1_1 = forest.link_node(&tree_id, _node_1, &String::from("node_1_1")).unwrap();
-//! let _node_1_2 = forest.link_node(&tree_id, _node_1, &String::from("node_1_2")).unwrap();
+//! let _node_1_1 = forest.link_node(&tree_id, _node_1, "node_1_1").unwrap();
+//! let _node_1_2 = forest.link_node(&tree_id, _node_1, "node_1_2").unwrap();
 //! // Serialize
 //! let f = File::create("serialized.tref").expect("Unable to create file");
 //! let mut buf_writer = BufWriter::new(f);
@@ -83,7 +83,7 @@
 //! let file = File::open("simpletree.tref").unwrap();
 //! let mut forest: Forest<SimpleNode> = Forest::build(BufReader::new(file)).unwrap();
 //! // Add `child_4` to root.
-//! let _child_4 = forest.link_node(&String::from("my_tree"), 0, &String::from("child_4")).unwrap();
+//! let _child_4 = forest.link_node("my_tree", 0, "child_4").unwrap();
 //! ```
 //! 
 //! # Dialects
@@ -117,7 +117,7 @@
 //!         }
 //!     }
 //! 
-//!     fn get_content(&self) -> &String {
+//!     fn get_content(&self) -> &str {
 //!         match self {
 //!             Self::Text(t) => t,
 //!             Self::Number(t, _) => t

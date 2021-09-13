@@ -173,7 +173,7 @@ fn check_dialect() {
             }
         }
 
-        fn get_content(&self) -> &String {
+        fn get_content(&self) -> &str {
             &self.content
         }
     }
@@ -232,7 +232,7 @@ fn check_dialect_enum() {
             }
         }
 
-        fn get_content(&self) -> &String {
+        fn get_content(&self) -> &str {
             match self {
                 Self::Text(t) => t,
                 Self::Number(t, _) => t
