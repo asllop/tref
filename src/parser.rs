@@ -29,7 +29,7 @@ impl TreeParser {
         }
     }
 
-    pub fn parse_statement(&self, statement: &String) -> TreeStatement {
+    pub fn parse_statement(&self, statement: &str) -> TreeStatement {
         if self.node_matcher.is_match(statement) {
             let n = self.node_finder.find(statement).unwrap();
             let node = &statement[n.end()..];

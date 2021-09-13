@@ -17,12 +17,13 @@ impl<'a, 'b, T: tree::NodeContent> TreeIter<'a, 'b, T> {
 }
 
 impl<'a, 'b, T: tree::NodeContent> Iterator for TreeIter<'a, 'b, T> {
-    type Item = &'a tree::TreeNode<T>;
+    type Item = (&'a tree::TreeNode<T>, usize);
     fn next(&mut self) -> Option<Self::Item> {
+        let position = self.position;
         match &self.tree.tree_ref.nodes.get(self.position) {
             Some(node) => {
                 self.position += 1;
-                Some(node)
+                Some((node, position))
             },
             None => None
         }
@@ -57,11 +58,12 @@ impl<'a, 'b, T: tree::NodeContent> InvTreeIter<'a, 'b, T> {
 }
 
 impl<'a, 'b, T: tree::NodeContent> Iterator for InvTreeIter<'a, 'b, T> {
-    type Item = &'a tree::TreeNode<T>;
+    type Item = (&'a tree::TreeNode<T>, usize);
     fn next(&mut self) -> Option<Self::Item> {
         if self.finished {
             return None;
         }
+        let position = self.position;
         match &self.tree.tree_ref.nodes.get(self.position) {
             Some(node) => {
                 if self.position > 0 {
@@ -70,7 +72,7 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for InvTreeIter<'a, 'b, T> {
                 else {
                     self.finished = true;
                 }
-                Some(node)
+                Some((node, position))
             },
             None => None
         }
@@ -99,13 +101,14 @@ impl<'a, 'b, T: tree::NodeContent> BfsIter<'a, 'b, T> {
 }
 
 impl<'a, 'b, T: tree::NodeContent> Iterator for BfsIter<'a, 'b, T> {
-    type Item = &'a tree::TreeNode<T>;
+    type Item = (&'a tree::TreeNode<T>, usize);
     fn next(&mut self) -> Option<Self::Item> {
         if self.finished {
             return None;
         }
         // Get current node
-        if let Some(node) = self.tree.tree_ref.nodes.get(self.next as usize) {
+        let position = self.next as usize;
+        if let Some(node) = self.tree.tree_ref.nodes.get(position) {
             // Put in the queue all children of current node
             for child in node.children.iter() {
                 self.cua.push(*child);
@@ -119,7 +122,7 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for BfsIter<'a, 'b, T> {
                 self.finished = true;
             }
             // Return current node
-            Some(node)
+            Some((node, position))
         }
         else {
             None
@@ -150,13 +153,14 @@ impl<'a, 'b, T: tree::NodeContent> InvBfsIter<'a, 'b, T> {
 }
 
 impl<'a, 'b, T: tree::NodeContent> Iterator for InvBfsIter<'a, 'b, T> {
-    type Item = &'a tree::TreeNode<T>;
+    type Item = (&'a tree::TreeNode<T>, usize);
     fn next(&mut self) -> Option<Self::Item> {
         if self.finished {
             return None;
         }
         // Get current node
-        if let Some(node) = self.tree.tree_ref.nodes.get(self.next as usize) {
+        let position = self.next as usize;
+        if let Some(node) = self.tree.tree_ref.nodes.get(position) {
             // Put in the queue all children of current node
             for child in node.children.iter().rev() {
                 self.cua.push(*child);
@@ -170,7 +174,7 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for InvBfsIter<'a, 'b, T> {
                 self.finished = true;
             }
             // Return current node
-            Some(node)
+            Some((node, position))
         }
         else {
             None
@@ -199,7 +203,7 @@ impl<'a, 'b, T: tree::NodeContent> BfsIterSwitch<'a, 'b, T> {
 }
 
 impl<'a, 'b, T: tree::NodeContent> Iterator for BfsIterSwitch<'a, 'b, T> {
-    type Item = &'a tree::TreeNode<T>;
+    type Item = (&'a tree::TreeNode<T>, usize);
     fn next(&mut self) -> Option<Self::Item> {
         if self.levels {
             return self.level_iter.as_mut().unwrap().next();
@@ -230,7 +234,7 @@ impl<'a, 'b, T: tree::NodeContent> InvBfsIterSwitch<'a, 'b, T> {
 }
 
 impl<'a, 'b, T: tree::NodeContent> Iterator for InvBfsIterSwitch<'a, 'b, T> {
-    type Item = &'a tree::TreeNode<T>;
+    type Item = (&'a tree::TreeNode<T>, usize);
     fn next(&mut self) -> Option<Self::Item> {
         if self.levels {
             return self.level_iter.as_mut().unwrap().next();
@@ -264,13 +268,17 @@ pub mod level_iters {
     }
 
     impl<'a, 'b, T: tree::NodeContent> Iterator for BfsIter<'a, 'b, T> {
-        type Item = &'a tree::TreeNode<T>;
+        type Item = (&'a tree::TreeNode<T>, usize);
         fn next(&mut self) -> Option<Self::Item> {
             if let Some(level_ref) = self.tree.level_ref {
                 if let Some(tree_level) = level_ref.get(self.position) {
                     if let Some(node_position) = tree_level.node_positions.get(self.sub_position) {
                         self.sub_position += 1;
-                        return self.tree.tree_ref.nodes.get(*node_position as usize);
+                        let position = *node_position as usize;
+                        return match self.tree.tree_ref.nodes.get(position) {
+                            Some(n) => Some((n, position)),
+                            None => None
+                        };
                     }
                     else {
                         self.position += 1;
@@ -308,13 +316,17 @@ pub mod level_iters {
     }
 
     impl<'a, 'b, T: tree::NodeContent> Iterator for InvBfsIter<'a, 'b, T> {
-        type Item = &'a tree::TreeNode<T>;
+        type Item = (&'a tree::TreeNode<T>, usize);
         fn next(&mut self) -> Option<Self::Item> {
             if let Some(level_ref) = self.tree.level_ref {
                 if let Some(tree_level) = level_ref.get(self.position) {
                     if let Some(node_position) = tree_level.node_positions.get(self.sub_position) {
                         self.sub_position += 1;
-                        return self.tree.tree_ref.nodes.get(*node_position as usize);
+                        let position = *node_position as usize;
+                        return match self.tree.tree_ref.nodes.get(position) {
+                            Some(n) => Some((n, position)),
+                            None => None
+                        };
                     }
                     else {
                         if self.position == 0 {
@@ -355,13 +367,17 @@ pub mod level_iters {
     }
 
     impl<'a, 'b, T: tree::NodeContent> Iterator for InvLevBfsIter<'a, 'b, T> {
-        type Item = &'a tree::TreeNode<T>;
+        type Item = (&'a tree::TreeNode<T>, usize);
         fn next(&mut self) -> Option<Self::Item> {
             if let Some(level_ref) = self.tree.level_ref {
                 if let Some(tree_level) = level_ref.get(self.position) {
                     if let Some(node_position) = tree_level.node_positions.get(self.sub_position) {
                         self.sub_position += 1;
-                        return self.tree.tree_ref.nodes.get(*node_position as usize);
+                        let position = *node_position as usize;
+                        return match self.tree.tree_ref.nodes.get(position) {
+                            Some(n) => Some((n, position)),
+                            None => None
+                        };
                     }
                     else {
                         if self.position == 0 {
@@ -399,13 +415,14 @@ impl<'a, 'b, T: tree::NodeContent> PreDfsIter<'a, 'b, T> {
 }
 
 impl<'a, 'b, T: tree::NodeContent> Iterator for PreDfsIter<'a, 'b, T> {
-    type Item = &'a tree::TreeNode<T>;
+    type Item = (&'a tree::TreeNode<T>, usize);
     fn next(&mut self) -> Option<Self::Item> {
         if self.finished {
             return None;
         }
         // Get current node
-        if let Some(node) = self.tree.tree_ref.nodes.get(self.next as usize) {
+        let position = self.next as usize;
+        if let Some(node) = self.tree.tree_ref.nodes.get(position) {
             // Put in the stack all children of current node
             for child in node.children.iter().rev() {
                 self.pila.push(*child);
@@ -419,7 +436,7 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for PreDfsIter<'a, 'b, T> {
                 self.finished = true;
             }
             // Return current node
-            Some(node)
+            Some((node, position))
         }
         else {
             None
@@ -449,13 +466,14 @@ impl<'a, 'b, T: tree::NodeContent> InvPreDfsIter<'a, 'b, T> {
 }
 
 impl<'a, 'b, T: tree::NodeContent> Iterator for InvPreDfsIter<'a, 'b, T> {
-    type Item = &'a tree::TreeNode<T>;
+    type Item = (&'a tree::TreeNode<T>, usize);
     fn next(&mut self) -> Option<Self::Item> {
         if self.finished {
             return None;
         }
         // Get current node
-        if let Some(node) = self.tree.tree_ref.nodes.get(self.next as usize) {
+        let position = self.next as usize;
+        if let Some(node) = self.tree.tree_ref.nodes.get(position) {
             // Put in the stack all children of current node
             for child in node.children.iter() {
                 self.pila.push(*child);
@@ -469,7 +487,7 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for InvPreDfsIter<'a, 'b, T> {
                 self.finished = true;
             }
             // Return current node
-            Some(node)
+            Some((node, position))
         }
         else {
             None
@@ -495,7 +513,7 @@ impl<'a, 'b, T: tree::NodeContent> PostDfsIter<'a, 'b, T> {
 }
 
 impl<'a, 'b, T: tree::NodeContent> Iterator for PostDfsIter<'a, 'b, T> {
-    type Item = &'a tree::TreeNode<T>;
+    type Item = (&'a tree::TreeNode<T>, usize);
     fn next(&mut self) -> Option<Self::Item> {
         // Get current node
         if let Some(next_node_tuple) = self.pila.pop() {
@@ -503,10 +521,11 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for PostDfsIter<'a, 'b, T> {
             let next = next_node_tuple.0;
             let push_children = next_node_tuple.1;
             // get node from tree
-            if let Some(node) = self.tree.tree_ref.nodes.get(next as usize) {
+            let position = next as usize;
+            if let Some(node) = self.tree.tree_ref.nodes.get(position) {
                 // We already pushed children of this node. Return the node itself.
                 if !push_children {
-                    return Some(node);
+                    return Some((node, position));
                 }
                 // it has children, put in stack
                 if node.children.len() > 0 {
@@ -519,7 +538,7 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for PostDfsIter<'a, 'b, T> {
                 }
                 // if no children, return this one
                 else {
-                    return Some(node);
+                    return Some((node, position));
                 }
             }
             else {
@@ -549,7 +568,7 @@ impl<'a, 'b, T: tree::NodeContent> InvPostDfsIter<'a, 'b, T> {
 }
 
 impl<'a, 'b, T: tree::NodeContent> Iterator for InvPostDfsIter<'a, 'b, T> {
-    type Item = &'a tree::TreeNode<T>;
+    type Item = (&'a tree::TreeNode<T>, usize);
     fn next(&mut self) -> Option<Self::Item> {
         // Get current node
         if let Some(next_node_tuple) = self.pila.pop() {
@@ -557,9 +576,10 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for InvPostDfsIter<'a, 'b, T> {
             let next = next_node_tuple.0;
             let push_children = next_node_tuple.1;
             // get node from tree
-            if let Some(node) = self.tree.tree_ref.nodes.get(next as usize) {
+            let position = next as usize;
+            if let Some(node) = self.tree.tree_ref.nodes.get(position) {
                 if !push_children {
-                    return Some(node);
+                    return Some((node, position));
                 }
                 // it has children, put in stack
                 if node.children.len() > 0 {
@@ -572,7 +592,7 @@ impl<'a, 'b, T: tree::NodeContent> Iterator for InvPostDfsIter<'a, 'b, T> {
                 }
                 // if no children, return this one
                 else {
-                    return Some(node);
+                    return Some((node, position));
                 }
             }
             else {

@@ -78,16 +78,15 @@ impl<T: tree::NodeContent> Forest<T> {
     /// # Examples
     /// 
     /// ```
-    /// let tree_id = &String::from("my_tree");
-    /// if let Some(tree_model) = forest.tree(tree_id) {
+    /// if let Some(tree_model) = forest.tree("my_tree") {
     ///     // ...
     /// }
     /// else {
-    ///     println!("Tree with ID {} not found", tree_id);
+    ///     println!("Tree with ID 'my_tree' not found");
     /// }
     /// ```
     /// 
-    pub fn tree(&self, tree_id: &String) -> Option<tree::TreeModel<T>> {
+    pub fn tree(&self, tree_id: &str) -> Option<tree::TreeModel<T>> {
         tree::TreeModel::new(self, tree_id)
     }
 
@@ -119,11 +118,10 @@ impl<T: tree::NodeContent> Forest<T> {
     /// let mut forest: Forest<SimpleNode> = Forest::empty();
     /// 
     /// // Create new empty tree
-    /// let tree_id = &String::from("my_tree");
-    /// forest.new_tree(tree_id)
+    /// forest.new_tree("my_tree")
     /// ```
     /// 
-    pub fn new_tree(&mut self, tree_id: &String) {
+    pub fn new_tree(&mut self, tree_id: &str) {
         self.add_tree(tree_id, tree::Tree::new());
     }
 
@@ -146,10 +144,10 @@ impl<T: tree::NodeContent> Forest<T> {
     /// forest.new_tree(&tree_id);
     /// 
     /// // Set root node to tree
-    /// let _root = forest.set_root(&tree_id, &String::from("root_node")).unwrap();
+    /// let _root = forest.set_root(&tree_id, "root_node").unwrap();
     /// ```
     /// 
-    pub fn set_root(&mut self, tree_id: &String, root_node_content: &String) -> Result<u32, String> {
+    pub fn set_root(&mut self, tree_id: &str, root_node_content: &str) -> Result<u32, String> {
         if let Some(tree) = self.get_mut_tree(&tree_id) {
             if tree.add_root_node(&root_node_content) {
                 Ok(0)
@@ -181,14 +179,14 @@ impl<T: tree::NodeContent> Forest<T> {
     /// let mut forest: Forest<SimpleNode> = Forest::empty();
     /// let tree_id = String::from("my_tree");
     /// forest.new_tree(&tree_id);
-    /// let _root = forest.set_root(&tree_id, &String::from("root_node")).unwrap();
+    /// let _root = forest.set_root(&tree_id, "root_node").unwrap();
     /// 
     /// // Add two children to root node
-    /// let _node_1 = forest.link_node(&tree_id, _root, &String::from("node_1")).unwrap();
-    /// let _node_2 = forest.link_node(&tree_id, _root, &String::from("node_2")).unwrap();
+    /// let _node_1 = forest.link_node(&tree_id, _root, "node_1").unwrap();
+    /// let _node_2 = forest.link_node(&tree_id, _root, "node_2").unwrap();
     /// ```
     /// 
-    pub fn link_node(&mut self, tree_id: &String, node_index: u32, node_content: &String) -> Result<u32, String> {
+    pub fn link_node(&mut self, tree_id: &str, node_index: u32, node_content: &str) -> Result<u32, String> {
         if let Some(tree) = self.get_mut_tree(&tree_id) {
             if tree.nodes.len() > node_index as usize {
                 let parent_level = tree.nodes[node_index as usize].level;
@@ -224,15 +222,15 @@ impl<T: tree::NodeContent> Forest<T> {
     /// let mut forest: Forest<SimpleNode> = Forest::empty();
     /// let tree_id = String::from("my_tree");
     /// forest.new_tree(&tree_id);
-    /// let _root = forest.set_root(&tree_id, &String::from("root_node")).unwrap();
-    /// let _node_1 = forest.link_node(&tree_id, _root, &String::from("node_1")).unwrap();
-    /// let _node_2 = forest.link_node(&tree_id, _root, &String::from("node_2")).unwrap();
+    /// let _root = forest.set_root(&tree_id, "root_node").unwrap();
+    /// let _node_1 = forest.link_node(&tree_id, _root, "node_1").unwrap();
+    /// let _node_2 = forest.link_node(&tree_id, _root, "node_2").unwrap();
     /// 
     /// // Unlink node_1 from root node
     /// forest.unlink_node(&tree_id, _node_1).unwrap();
     /// ```
     /// 
-    pub fn unlink_node(&mut self, tree_id: &String, node_index: u32) -> Result<u32, String> {
+    pub fn unlink_node(&mut self, tree_id: &str, node_index: u32) -> Result<u32, String> {
         if let Some(tree) = self.get_mut_tree(&tree_id) {
             if tree.nodes.len() > node_index as usize {
                 if let Some(parent) = tree.nodes[node_index as usize].parent_position {
@@ -262,7 +260,7 @@ impl<T: tree::NodeContent> Forest<T> {
         }
     }
 
-    fn find_child(nodes: &Vec<tree::TreeNode<T>>, parent: u32, child_content: &String) -> Option<u32> {
+    fn find_child(nodes: &Vec<tree::TreeNode<T>>, parent: u32, child_content: &str) -> Option<u32> {
         if nodes.len() > parent as usize {
             for n in &nodes[parent as usize].children {
                 if nodes.len() > *n as usize {
@@ -290,10 +288,10 @@ impl<T: tree::NodeContent> Forest<T> {
     /// 
     /// ```
     /// // Path of node: root_node -> child_2 -> child_2_1 -> child_2_1_1
-    /// let child_2_1_1 = forest.find_node(&String::from("my_tree"), vec!(String::from("root_node"), String::from("child_2"), String::from("child_2_1"), String::from("child_2_1_1"))).unwrap();
+    /// let child_2_1_1 = forest.find_node("my_tree", vec!(String::from("root_node"), String::from("child_2"), String::from("child_2_1"), String::from("child_2_1_1"))).unwrap();
     /// ```
     /// 
-    pub fn find_node(&self, tree_id: &String, path: Vec<String>) -> Option<u32> {
+    pub fn find_node(&self, tree_id: &str, path: Vec<String>) -> Option<u32> {
         let mut current_node: u32 = 0;
         let mut current_path_pos: u32 = 0;
         if let Some(tree) = self.tree(&tree_id) {
@@ -370,7 +368,7 @@ impl<T: tree::NodeContent> Forest<T> {
             }
             // iter all nodes and generate statements
             let tree_model = self.tree(tree_id).unwrap();
-            for n in tree_model.pre_dfs_iter() {
+            for (n, _) in tree_model.pre_dfs_iter() {
                 let mut node_statement = String::new();
                 for _ in 0..n.level {
                     node_statement.push_str("+ ");
@@ -494,7 +492,7 @@ impl<T: tree::NodeContent> Forest<T> {
         Result::Ok(forest)
     }  
     
-    fn add_node_to_levels(levels: &mut HashMap<String, Vec<tree::TreeLevel>>, tree_id: &String, level: u32, node_pos: u32) -> Result<(), String> {
+    fn add_node_to_levels(levels: &mut HashMap<String, Vec<tree::TreeLevel>>, tree_id: &str, level: u32, node_pos: u32) -> Result<(), String> {
         // Tree doesn't exist, create it
         if let None = levels.get_mut(tree_id) {
             levels.insert(String::from(tree_id), vec!());
@@ -523,11 +521,11 @@ impl<T: tree::NodeContent> Forest<T> {
         Ok(())
     }
 
-    fn add_tree(&mut self, tree_id: &String, tree: tree::Tree<T>) {
+    fn add_tree(&mut self, tree_id: &str, tree: tree::Tree<T>) {
         self.trees.insert(String::from(tree_id), tree);
     }
 
-    fn get_mut_tree(&mut self, current_tree_id: &String) -> Option<&mut tree::Tree<T>> {
+    fn get_mut_tree(&mut self, current_tree_id: &str) -> Option<&mut tree::Tree<T>> {
         self.trees.get_mut(current_tree_id)
     }
 }
