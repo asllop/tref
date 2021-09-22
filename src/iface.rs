@@ -2,21 +2,20 @@ use std::io::{prelude::*, BufReader};
 use socarel::{Forest, NodeContent, RawNode};
 use crate::stack::*;
 use crate::parser::*;
+use std::marker::PhantomData;
 
 /// Document interaction model.
 pub struct Model<T: NodeContent = RawNode> {
-    _x: Option<T>
+    phantom: PhantomData<T>
 }
 
 impl<T: NodeContent> Model<T> {
     /// Create new parser.
     pub fn new() -> Self {
-        Model {
-            _x: None
-        }
+        Model { phantom: PhantomData }
     }
 
-    // TODO: return a Result<Forest, ParseError> -> define ParseError that implements the std::error::Error trait
+    // TODO: return a Result<Forest<T>, ParseError> -> define ParseError that implements the std::error::Error trait
     pub fn parse(&self, reader: BufReader<impl Read>) -> Result<Forest<T>, String> {
         let parser = TreeParser::new();
         let mut stack = NodeStack::new();

@@ -1,12 +1,14 @@
-use std::fs::File;
-use std::io::BufReader;
-use tref::Model;
+use std::{fs::File, io::BufReader};
+use tref;
+use socarel::RawNode;
 
 fn main() {
     if let Ok(file) = File::open("file.tref") {
-        let model = <Model>::new();
+        let model = <tref::Model>::new();
         if let Ok(forest) = model.parse(BufReader::new(file)) {
-            println!("Forest = {:#?}", forest);
+            if let Some(tree) = forest.get_tree("my_tree") {
+                println!("my_tree = {:#?}", tree);
+            }
         }
     }
 }
