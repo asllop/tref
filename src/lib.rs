@@ -136,12 +136,9 @@
 
 mod parser;
 mod stack;
-mod tree;
-mod iter;
-mod forest;
+mod iface;
 
-pub use tree::{NodeContent, SimpleNode, TreeModel, TreeNode};
-pub use forest::*;
+pub use iface::*;
 
 #[cfg(test)]
 mod tests;

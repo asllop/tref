@@ -1,4 +1,18 @@
 use std::fs::File;
+use std::io::BufReader;
+use tref::Model;
+
+fn main() {
+    if let Ok(file) = File::open("file.tref") {
+        let model = <Model>::new();
+        if let Ok(forest) = model.parse(BufReader::new(file)) {
+            println!("Forest = {:#?}", forest);
+        }
+    }
+}
+
+/*
+use std::fs::File;
 use std::io::{BufReader, BufWriter};
 use std::env;
 use tref::*;
@@ -145,3 +159,4 @@ fn serialize_tref() {
     println!("\nSerialized into a string =\n\n{}", string);
     */
 }
+*/

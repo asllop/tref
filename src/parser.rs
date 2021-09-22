@@ -1,13 +1,20 @@
 use regex::Regex;
 
+/// Statements of a TREF document.
 pub enum TreeStatement {
+    /// Tree ID statement, with tree name.
     TreeID(String),
-    Node(String, u32),
+    /// Node statement, with node content and level.
+    Node(String, usize),
+    /// Comment statement.
     Comment,
+    /// Empty statement.
     Empty,
+    /// Invalid statement.
     Invalid
 }
 
+/// Tree parser.
 pub struct TreeParser {
     tree_id_matcher: Regex,
     tree_id_finder: Regex,
@@ -18,6 +25,7 @@ pub struct TreeParser {
 }
 
 impl TreeParser {
+    /// Create a new tree parser.
     pub fn new() -> Self {
         Self {
             tree_id_matcher: Regex::new(r"^\[[A-Za-z0-9_]+\]$").unwrap(),
@@ -29,6 +37,16 @@ impl TreeParser {
         }
     }
 
+    /// Parse one statement.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `statement` - Document line.
+    /// 
+    /// # Return
+    /// 
+    /// * A [`TreeStatement`] model.
+    ///
     pub fn parse_statement(&self, statement: &str) -> TreeStatement {
         if self.node_matcher.is_match(statement) {
             let n = self.node_finder.find(statement).unwrap();
