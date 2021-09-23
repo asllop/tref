@@ -44,6 +44,7 @@
 //!         Ok(mut forest) => {
 //!             // Get the `my_tree` model.
 //!             if let Some(tree) = forest.get_mut_tree("my_tree") {
+//!                 // Traverse the tree using the BFS algorithm
 //!                 for (n, _) in tree.iterators().bfs() {
 //!                     // Print the node content
 //!                     println!("{}", n.get_content_ref().get_val());
@@ -78,12 +79,12 @@
 //! 
 //! TREF also supports user defined dialects, that are trees that have nodes with a specific format. This is achived using the [`NodeContent`][`socarel::NodeContent`] trait.
 //! 
-//! For example, imagine we want to model a tree that has nodes of type string and others of type integer. Something like:
+//! For example, imagine we want to model a tree with nodes that can only have integer values. Something like:
 //! 
 //! ```tref
 //! [my_dialect_tree]
-//! + root
-//! + + string child
+//! + 1000
+//! + + 800
 //! + + + 2500
 //! + + + 130
 //! ```
@@ -93,25 +94,25 @@
 //! ```
 //! use socarel::NodeContent;
 //! 
-//! pub enum TypedNode {
-//!     Text(String),
-//!     Number(String, u32)
+//! pub struct IntegerNode {
+//!     num: i32,
+//!     content: String
 //! }
 //! 
-//! impl NodeContent for TypedNode {
+//! impl NodeContent for IntegerNode {
 //!     fn new(content: &str) -> Option<Self> {
-//!         // Try to parse the node content as integer, if it fails, then it must be a string
+//!         // Try to parse the node content as integer
 //!         match content.trim().parse() {
-//!             Ok(num) => Some(Self::Number(String::from(content), num)),
-//!             Err(_) => Some(Self::Text(String::from(content)))
+//!             Ok(num) => {
+//!                 let content = String::from(content);
+//!                 Some(IntegerNode { num, content })
+//!             },
+//!             Err(_) => None
 //!         }
 //!     }
 //! 
 //!     fn get_val(&self) -> &str {
-//!         match self {
-//!             Self::Text(t) => t,
-//!             Self::Number(t, _) => t
-//!         }
+//!         &self.content
 //!     }
 //! 
 //!     fn gen_content(&self) -> String {
@@ -121,8 +122,8 @@
 //! 
 //! // And then use it to parse the tree:
 //! 
-//! let model = tref::Model::<TypedNode>::new();
-//! // call model.parse(...), etc. Now all nodes inside the tree will be of type `TypedNode`.
+//! let model = tref::Model::<IntegerNode>::new();
+//! // call model.parse(...), etc. Now all nodes inside the tree will be of type `IntegerNode`.
 //! ```
 //! 
 //! The [`NodeContent::new()`][`socarel::NodeContent::new()`] is called every time a node of the tree is parsed. It returns an [`Option`], that means it can be None, in which case the TREF parser will fail, returing an error.
