@@ -8,7 +8,7 @@
 //! 
 //! A simple TREF file looks like:
 //! 
-//! ```text
+//! ```tref
 //! # A simple tree.
 //! [my_tree]
 //! + root_nodess
@@ -78,7 +78,7 @@
 //! 
 //! For example, imagine we want to model a tree that has nodes of type string and others of type integer. Something like:
 //! 
-//! ```text
+//! ```tref
 //! [my_dialect_tree]
 //! + root
 //! + + string child
