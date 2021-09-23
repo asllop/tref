@@ -11,7 +11,7 @@ pub struct Model<T: NodeContent = RawNode> {
 }
 
 impl<T: NodeContent> Model<T> {
-    /// Create new parser.
+    /// Create new interface model.
     pub fn new() -> Self {
         Model { phantom: PhantomData }
     }
@@ -24,7 +24,7 @@ impl<T: NodeContent> Model<T> {
     /// 
     /// # Return
     /// 
-    /// * A [`Result`] with a `Forest` or a `ParseTreeError`.
+    /// * A [`Result`] with a [`Forest`] or a [`ParseTreeError`].
     ///
     pub fn parse(&self, reader: BufReader<impl Read>) -> Result<Forest<T>, ParseTreeError> {
         let parser = TreeParser::new();
@@ -114,7 +114,7 @@ impl<T: NodeContent> Model<T> {
     ///
     /// # Return
     /// 
-    /// * A [`Result`] with a number of lines writen or a `SerializeTreeError`.
+    /// * A [`Result`] with a number of lines writen or a [`SerializeTreeError`].
     /// 
     pub fn serialize(&self, forest: &Forest<T>, writer: &mut BufWriter<impl Write>) -> Result<usize, SerializeTreeError> {
         let parser = TreeParser::new();

@@ -7,9 +7,6 @@ description = "Tree in Rows Elemental Format (TREF). Crate to generate, store, t
 license = "MIT"
 repository = "https://github.com/asllop/tref"
 
-[lib]
-doctest = false
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
