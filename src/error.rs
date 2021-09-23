@@ -78,6 +78,26 @@ impl SerializeTreeError {
             statement
         }
     }
+
+    /// Get error line.
+    /// 
+    /// # Return
+    /// 
+    /// * Line.
+    ///
+    pub fn line(&self) -> usize {
+        self.line
+    }
+
+    /// Get statement that caused the error.
+    /// 
+    /// # Return
+    /// 
+    /// * Statement.
+    ///
+    pub fn statement(&self) -> &Option<String> {
+        &self.statement
+    }
 }
 
 impl fmt::Display for SerializeTreeError {
