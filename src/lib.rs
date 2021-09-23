@@ -139,6 +139,7 @@ mod stack;
 mod iface;
 
 pub use iface::*;
+pub use parser::ParseTreeError;
 
 #[cfg(test)]
 mod tests;

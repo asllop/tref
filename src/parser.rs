@@ -1,3 +1,5 @@
+use std::error::Error;
+use std::fmt;
 use regex::Regex;
 
 /// Statements of a TREF document.
@@ -22,6 +24,13 @@ pub struct TreeParser {
     node_finder: Regex,
     node_level_finder: Regex,
     comment_matcher: Regex
+}
+
+#[derive(Debug)]
+/// Parse TREF document error.
+pub struct ParseTreeError {
+    message: String,
+    line: usize
 }
 
 impl TreeParser {
@@ -75,5 +84,47 @@ impl TreeParser {
                 TreeStatement::Invalid
             }
         }
+    }
+}
+
+impl ParseTreeError {
+    /// Create new parse tree error.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `msg` - Error message.
+    /// * `line` - Document line where the error hapened.
+    /// 
+    /// # Return
+    /// 
+    /// * An error model.
+    ///
+    pub fn new(msg: &str, line: usize) -> Self {
+        ParseTreeError {
+            message: String::from(msg),
+            line
+        }
+    }
+
+    /// Get error line.
+    /// 
+    /// # Return
+    /// 
+    /// * Line.
+    ///
+    pub fn line(&self) -> usize {
+        self.line
+    }
+}
+
+impl fmt::Display for ParseTreeError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f,"`{}` at line {}", self.message, self.line + 1)
+    }
+}
+
+impl Error for ParseTreeError {
+    fn description(&self) -> &str {
+        &self.message
     }
 }

@@ -1,8 +1,8 @@
 use std::io::{prelude::*, BufReader};
+use std::marker::PhantomData;
 use socarel::{Forest, NodeContent, RawNode};
 use crate::stack::*;
 use crate::parser::*;
-use std::marker::PhantomData;
 
 /// Document interaction model.
 pub struct Model<T: NodeContent = RawNode> {
@@ -15,8 +15,17 @@ impl<T: NodeContent> Model<T> {
         Model { phantom: PhantomData }
     }
 
-    // TODO: return a Result<Forest<T>, ParseError> -> define ParseError that implements the std::error::Error trait
-    pub fn parse(&self, reader: BufReader<impl Read>) -> Result<Forest<T>, String> {
+    /// Parse TREF document.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `reader` - BufReader to read the document.
+    /// 
+    /// # Return
+    /// 
+    /// * A [`Result`] with a `Forest` or a `ParseTreeError`.
+    ///
+    pub fn parse(&self, reader: BufReader<impl Read>) -> Result<Forest<T>, ParseTreeError> {
         let parser = TreeParser::new();
         let mut stack = NodeStack::new();
         let mut prev_level = 0;
@@ -27,35 +36,36 @@ impl<T: NodeContent> Model<T> {
             if let Ok(line) = l {
                 let statement = parser.parse_statement(&line);
                 match statement {
-                    TreeStatement::Invalid => return Result::Err(format!("Invalid statement at line {}", i + 1)),
+                    TreeStatement::Invalid => {
+                        return Result::Err(ParseTreeError::new("Invalid statement", i))
+                    },
                     TreeStatement::TreeID(tree_id) => {
                         stack.flush();
                         // Create new tree
                         forest.new_tree(&tree_id);
-                        forest.get_mut_tree(&tree_id);
                         current_tree_id = tree_id;
                     }
                     TreeStatement::Node(content, level) => {
                         if level > prev_level + 1 {
-                            return Result::Err(format!("Invalid node level at line {}", i + 1));
+                            return Result::Err(ParseTreeError::new("Invalid node level", i));
                         }
     
                         // Root node
                         if level == 1 {
                             if let Some(_) = stack.top() {
-                                return Result::Err(format!("Multiple root nodes for the same tree at line {}", i + 1));
+                                return Result::Err(ParseTreeError::new("Multiple root nodes for the same tree", i));
                             }
 
                             if let Some(tree) = forest.get_mut_tree(&current_tree_id) {
                                 // Create root node
                                 if let None = tree.set_root(&content) {
-                                    return Result::Err(format!("Failed parsing root node at line {}", i + 1));
+                                    return Result::Err(ParseTreeError::new("Failed parsing root node", i));
                                 }
                                 // Push root node reference to stack
                                 stack.push_new(1, 0);
                             }
                             else {
-                                return Result::Err(format!("Found root node without previous tree ID at line {}", i + 1));
+                                return Result::Err(ParseTreeError::new("Found root node without previous tree ID", i));
                             }
                         }
                         // Somebody's child node
@@ -69,15 +79,15 @@ impl<T: NodeContent> Model<T> {
                                         stack.push_new(level, new_node);
                                     }
                                     else {
-                                        return Result::Err(format!("Failed parsing node at line {}", i + 1));
+                                        return Result::Err(ParseTreeError::new("Failed parsing node", i));
                                     }
                                 }
                                 else {
-                                    return Result::Err(format!("Couldn't find tree at line {}", i + 1));
+                                    return Result::Err(ParseTreeError::new("Couldn't find tree", i));
                                 }
                             }
                             else {
-                                return Result::Err(format!("Couldn't find a parent ref at line {}", i + 1));
+                                return Result::Err(ParseTreeError::new("Couldn't find a parent ref", i));
                             }
                         }
     
@@ -87,7 +97,7 @@ impl<T: NodeContent> Model<T> {
                 }
             }
             else {
-                return Result::Err(format!("Could not read line at {}", i + 1));
+                return Result::Err(ParseTreeError::new("Could not read line", i));
             }
         }
 

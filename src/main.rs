@@ -1,6 +1,5 @@
 use std::{fs::File, io::BufReader};
 use tref;
-use socarel::RawNode;
 
 fn main() {
     if let Ok(file) = File::open("file.tref") {
