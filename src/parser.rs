@@ -119,7 +119,7 @@ impl ParseTreeError {
 
 impl fmt::Display for ParseTreeError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f,"`{}` at line {}", self.message, self.line + 1)
+        write!(f, "`{}` at line {}", self.message, self.line + 1)
     }
 }
 

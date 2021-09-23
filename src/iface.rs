@@ -1,4 +1,4 @@
-use std::io::{prelude::*, BufReader};
+use std::io::{prelude::*, BufReader, BufWriter};
 use std::marker::PhantomData;
 use socarel::{Forest, NodeContent, RawNode};
 use crate::stack::*;
@@ -53,7 +53,7 @@ impl<T: NodeContent> Model<T> {
                         // Root node
                         if level == 1 {
                             if let Some(_) = stack.top() {
-                                return Result::Err(ParseTreeError::new("Multiple root nodes for the same tree", i));
+                                return Result::Err(ParseTreeError::new("Multiple root nodes in the same tree", i));
                             }
 
                             if let Some(tree) = forest.get_mut_tree(&current_tree_id) {
@@ -104,5 +104,58 @@ impl<T: NodeContent> Model<T> {
         Result::Ok(forest)
     }
 
-    //TODO: implement serializer
+    /// Convert a Forest structure into a TREF document.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `forest` - Reference to a `Forest`.
+    /// * `writer` - BufWriter where to write the TREF.
+    ///
+    /// # Return
+    /// 
+    /// * A boolean, true if serialization was ok, false if not.
+    /// 
+    pub fn serialize(&self, forest: &Forest<T>, writer: &mut BufWriter<impl Write>) -> bool {
+        let parser = TreeParser::new();
+        for (tree_id, _) in forest.iter() {
+            // write tree id statement
+            let tree_id_statement = format!("[{}]", tree_id);
+            if let TreeStatement::TreeID(_) = parser.parse_statement(&tree_id_statement) {
+                if let Err(_) = writer.write(&format!("{}\n",tree_id_statement).as_bytes()) {
+                    return false;
+                }
+            }
+            else {
+                return false;
+            }
+            // iter all nodes and generate statements
+            if let Some(tree) = forest.get_tree(tree_id) {
+                for (n, _) in tree.iterators().pre_dfs() {
+                    let mut node_statement = String::new();
+                    for _ in 0..n.get_level() {
+                        node_statement.push_str("+ ");
+                    }
+                    node_statement.push_str(&format!("{}", n.get_content_ref().gen_content()));
+                    // write node
+                    if let TreeStatement::Node(_,_) = parser.parse_statement(&node_statement) {
+                        if let Err(_) = writer.write(format!("{}\n", node_statement).as_bytes()) {
+                            return false;
+                        }
+                    }
+                    else {
+                        return false;
+                    }
+                }
+            }
+            else {
+                return false;
+            }
+        }
+        if let Err(_) = writer.flush() {
+            false
+        }
+        else {
+            true
+        }
+    }
 }

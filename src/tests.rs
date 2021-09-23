@@ -2,6 +2,13 @@ use std::io::{BufReader, BufWriter};
 use std::io::prelude::*;
 use crate::{NodeContent, SimpleNode, Forest, TreeNode, TreeModel};
 
+//TODO:
+// - check parsing valid doc
+// - check parsing multiple invalid docs
+// - check serializing valid doc
+// - check serielizing multiple invalid docs
+// - check parsing a dialect
+
 fn tref_sample() -> BufReader<impl Read> {
     let tref =
     "[test_tree]\n\
