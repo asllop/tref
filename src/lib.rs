@@ -99,6 +99,12 @@
 //!     content: String
 //! }
 //! 
+//! impl IntegerNode {
+//!     pub fn get_num(&self) -> i32 {
+//!         self.num
+//!     }
+//! }
+//! 
 //! impl NodeContent for IntegerNode {
 //!     fn new(content: &str) -> Option<Self> {
 //!         // Try to parse the node content as integer
