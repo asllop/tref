@@ -82,7 +82,12 @@ impl SerializeTreeError {
 
 impl fmt::Display for SerializeTreeError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "`{}`", self.message)
+        if let Some(statement) = &self.statement {
+            write!(f, "`{}` at line {} with statement {}", self.message, self.line, statement)
+        }
+        else {
+            write!(f, "`{}` at line {}", self.message, self.line)
+        }
     }
 }
 
