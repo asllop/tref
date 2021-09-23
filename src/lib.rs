@@ -72,6 +72,8 @@
 //! }
 //! ```
 //! 
+//! The example above uses [`unlink_node`][`socarel::Tree::unlink_node`] to disconnect a node from the tree. To know more about how to manupulate trees, please check out the [`socarel`] crate documentation.
+//! 
 //! # Dialects
 //! 
 //! TREF also supports user defined dialects, that are trees that have nodes with a specific format. This is achived using the [`NodeContent`][`socarel::NodeContent`] trait.
