@@ -3,6 +3,7 @@ use std::marker::PhantomData;
 use socarel::{Forest, NodeContent, RawNode};
 use crate::stack::*;
 use crate::parser::*;
+use crate::error::*;
 
 /// Document interaction model.
 pub struct Model<T: NodeContent = RawNode> {
@@ -113,20 +114,22 @@ impl<T: NodeContent> Model<T> {
     ///
     /// # Return
     /// 
-    /// * A boolean, true if serialization was ok, false if not.
+    /// * A [`Result`] with a number of lines writen or a `SerializeTreeError`.
     /// 
-    pub fn serialize(&self, forest: &Forest<T>, writer: &mut BufWriter<impl Write>) -> bool {
+    pub fn serialize(&self, forest: &Forest<T>, writer: &mut BufWriter<impl Write>) -> Result<usize, SerializeTreeError> {
         let parser = TreeParser::new();
+        let mut num_lines_writen = 0;
         for (tree_id, _) in forest.iter() {
             // write tree id statement
             let tree_id_statement = format!("[{}]", tree_id);
             if let TreeStatement::TreeID(_) = parser.parse_statement(&tree_id_statement) {
                 if let Err(_) = writer.write(&format!("{}\n",tree_id_statement).as_bytes()) {
-                    return false;
+                    return Result::Err(SerializeTreeError::new("Could not write Tree ID", num_lines_writen, Some(tree_id_statement)));
                 }
+                num_lines_writen += 1;
             }
             else {
-                return false;
+                return Result::Err(SerializeTreeError::new("Could not parse Tree ID", num_lines_writen, Some(tree_id_statement)));
             }
             // iter all nodes and generate statements
             if let Some(tree) = forest.get_tree(tree_id) {
@@ -139,23 +142,25 @@ impl<T: NodeContent> Model<T> {
                     // write node
                     if let TreeStatement::Node(_,_) = parser.parse_statement(&node_statement) {
                         if let Err(_) = writer.write(format!("{}\n", node_statement).as_bytes()) {
-                            return false;
+                            return Result::Err(SerializeTreeError::new("Could nod write node", num_lines_writen, Some(node_statement)));
                         }
+                        num_lines_writen += 1;
                     }
                     else {
-                        return false;
+                        return Result::Err(SerializeTreeError::new("Could not parse node", num_lines_writen, Some(node_statement)));
                     }
                 }
             }
             else {
-                return false;
+                return Result::Err(SerializeTreeError::new("Could nod get tree from forest", num_lines_writen, Some(String::from(tree_id))));
             }
         }
+
         if let Err(_) = writer.flush() {
-            false
+            Result::Err(SerializeTreeError::new("Writer flush failed", num_lines_writen, None))
         }
         else {
-            true
+            Ok(num_lines_writen)
         }
     }
 }

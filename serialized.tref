@@ -1,3 +1,13 @@
+[wp_tree]
++ F
++ + B
++ + + A
++ + + D
++ + + + C
++ + + + E
++ + G
++ + + I
++ + + + H
 [my_tree]
 + base
 + + branch_1
@@ -15,13 +25,3 @@
 + + + + branch_2_1_1
 + + + + + branch_2_1_1_1
 + + branch_3
-[wp_tree]
-+ F
-+ + B
-+ + + A
-+ + + D
-+ + + + C
-+ + + + E
-+ + G
-+ + + I
-+ + + + H

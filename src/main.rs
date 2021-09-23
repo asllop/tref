@@ -11,12 +11,13 @@ fn main() {
 
             let f = File::create("serialized.tref").expect("Unable to create file");
             let mut buf_writer = BufWriter::new(f);
-            if model.serialize(&forest, &mut buf_writer) {
-                println!("Tree serialized correctly");
-            }
-            else {
-                println!("!!Failed serializing tree!!");
-                return;
+            match model.serialize(&forest, &mut buf_writer) {
+                Ok(num_lines) => {
+                    println!("Tree serialized correctly, num lines = {}", num_lines);
+                },
+                Err(e) => {
+                    println!("Failed serializing tree: {}", e);
+                }
             }
         }
     }
