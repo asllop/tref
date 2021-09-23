@@ -39,7 +39,7 @@ source = "git+https://github.com/asllop/socarel#99628e6bda66ad51871bce24e007e979
 
 [[package]]
 name = "tref"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "regex",
  "socarel",
