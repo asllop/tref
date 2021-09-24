@@ -33,8 +33,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "24d5f089152e60f62d28b835fbff2cd2e8dc0baf1ac13343bef92ab7eed84548"
 
 [[package]]
+name = "socarel"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "00edf67378383faf89075ef5d3130a09d23c51e4e100f74da798e26d64426728"
+
+[[package]]
 name = "tref"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "regex",
+ "socarel",
 ]

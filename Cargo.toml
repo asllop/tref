@@ -1,16 +1,14 @@
 [package]
 name = "tref"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Andreu Santaren Llop <andreu.santaren@gmail.com>"]
 edition = "2018"
-description = "Tree in Rows Elemental Format (TREF). Crate to generate, store, traverse and serialize trees."
+description = "Tree in Rows Elemental Format (TREF). Crate to parse, store and serialize trees."
 license = "MIT"
 repository = "https://github.com/asllop/tref"
-
-[lib]
-doctest = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 regex = "1"
+socarel = "0.4.0"

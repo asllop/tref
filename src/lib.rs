@@ -8,7 +8,7 @@
 //! 
 //! A simple TREF file looks like:
 //! 
-//! ```
+//! ```tref
 //! # A simple tree.
 //! [my_tree]
 //! + root_nodess
@@ -28,100 +28,101 @@
 //! To load this crate just use:
 //! 
 //! ```
-//! use tref::*;
+//! use tref;
 //! ```
 //! 
-//! Parse the `simpletree.tref` file and traverse `my_tree`:
+//! Parse the `file.tref` file, traverse `my_tree`, modify tree and serialize:
 //! 
 //! ```
-//! if let Ok(file) = File::open("simpletree.tref") {
-//!     let forest: Forest<SimpleNode> = match Forest::build_levels(BufReader::new(file)) {
-//!         Ok(f) => f,
-//!         Err(m) => panic!("Could not parse TREF: {}", m)
-//!     };
+//! use std::{fs::File, io::{BufReader, BufWriter}};
+//! use socarel::{NodeContent};
 //! 
-//!     // Get the `my_tree` model.
-//!     if let Some(tree_model) = forest.tree("my_tree") {
-//!         // Traverse the tree using the BFS algorithm.
-//!         for (n, _) in tree_model.bfs_iter() {
-//!             // Print the node content
-//!             println!("{}", n.content.get_content());
+//! if let Ok(file) = File::open("file.tref") {
+//!     let model = <tref::Model>::new();
+//!     // Parse document
+//!     match model.parse(BufReader::new(file)) {
+//!         Ok(mut forest) => {
+//!             // Get the `my_tree` model.
+//!             if let Some(tree) = forest.get_mut_tree("my_tree") {
+//!                 // Traverse the tree using the BFS algorithm
+//!                 for (n, _) in tree.iterators().bfs() {
+//!                     // Print the node content
+//!                     println!("{}", n.get_content_ref().get_val());
+//!                 }
+//! 
+//!                 // Unlink node at index 1
+//!                 tree.unlink_node(1);
+//!             }
+//! 
+//!             // Serialize the resulting forest back into a TREF file
+//!             let f = File::create("serialized.tref").expect("Unable to create file");
+//!             let mut buf_writer = BufWriter::new(f);
+//!             match model.serialize(&forest, &mut buf_writer) {
+//!                 Ok(num_lines) => {
+//!                     println!("Tree serialized correctly, num lines = {}", num_lines);
+//!                 },
+//!                 Err(e) => {
+//!                     println!("Failed serializing tree: {}", e);
+//!                 }
+//!             }
+//!         },
+//!         Err(e) => {
+//!             println!("Could not parse TREF: {}", e)
 //!         }
 //!     }
 //! }
 //! ```
 //! 
-//! Generate a forest programatically and serialize it into a TREF file:
-//! 
-//! ```
-//! let mut forest: Forest<SimpleNode> = Forest::empty();
-//! // Create new tree and root node
-//! let tree_id = String::from("my_tree");
-//! forest.new_tree(&tree_id);
-//! let _root = forest.set_root(&tree_id, "root_node").unwrap();
-//! // Add 3 children to root
-//! let _node_1 = forest.link_node(&tree_id, _root, "node_1").unwrap();
-//! let _node_2 = forest.link_node(&tree_id, _root, "node_2").unwrap();
-//! let _node_3 = forest.link_node(&tree_id, _root, "node_3").unwrap();
-//! // Add 1 child to node_3
-//! let _node_3_1 = forest.link_node(&tree_id, _node_3, "node_3_1").unwrap();
-//! // Add 2 children to node_1
-//! let _node_1_1 = forest.link_node(&tree_id, _node_1, "node_1_1").unwrap();
-//! let _node_1_2 = forest.link_node(&tree_id, _node_1, "node_1_2").unwrap();
-//! // Serialize
-//! let f = File::create("serialized.tref").expect("Unable to create file");
-//! let mut buf_writer = BufWriter::new(f);
-//! 
-//! if !forest.serialize(&mut buf_writer) {
-//!     println!("Failed serializing tree!");
-//! }
-//! ```
-//! 
-//! Is also possible to modify a tree parsed from a file:
-//! 
-//! ```
-//! let file = File::open("simpletree.tref").unwrap();
-//! let mut forest: Forest<SimpleNode> = Forest::build(BufReader::new(file)).unwrap();
-//! // Add `child_4` to root.
-//! let _child_4 = forest.link_node("my_tree", 0, "child_4").unwrap();
-//! ```
+//! The example above uses [`unlink_node()`][`socarel::Tree::unlink_node`] to disconnect a node from the tree. To know more about how to manupulate trees, please check out the [`socarel`] crate documentation.
 //! 
 //! # Dialects
 //! 
-//! TREF also supports user defined dialects, that are trees that have nodes with a specific format. This is achived using the [`NodeContent`] trait.
+//! TREF also supports user defined dialects, that are trees that have nodes with a specific format. This is achived using the [`NodeContent`][`socarel::NodeContent`] trait.
 //! 
-//! For example, imagine we want to model a tree that has nodes of type string and others of type integer. Something like:
+//! For example, imagine we want to model a tree with nodes that can only have integer values. Something like:
 //! 
-//! ```
+//! ```tref
 //! [my_dialect_tree]
-//! + root
-//! + + string child
+//! + 1000
+//! + + 800
 //! + + + 2500
 //! + + + 130
 //! ```
 //! 
-//! First we have to define a [`NodeContent`] to parse our custom nodes:
+//! First we have to define a [`NodeContent`][`socarel::NodeContent`] to parse our custom nodes:
 //! 
 //! ```
-//! enum TypedNode {
-//!     Text(String),
-//!     Number(String, u32)
+//! use socarel::NodeContent;
+//! 
+//! pub struct IntegerNode {
+//!     num: i32,
+//!     content: String
 //! }
 //! 
-//! impl NodeContent for TypedNode {
-//!     fn new(content: String) -> Option<Self> {
-//!         // Try to parse the node content as integer, if it fails, then it must be a string
+//! impl IntegerNode {
+//!     pub fn get_num(&self) -> i32 {
+//!         self.num
+//!     }
+//! }
+//! 
+//! impl NodeContent for IntegerNode {
+//!     fn new(content: &str) -> Option<Self> {
+//!         // Try to parse the node content as integer
 //!         match content.trim().parse() {
-//!             Ok(num) => Some(Self::Number(content, num)),
-//!             Err(_) => Some(Self::Text(content))
+//!             Ok(num) => {
+//!                 let content = String::from(content);
+//!                 Some(IntegerNode { num, content })
+//!             },
+//!             Err(_) => None
 //!         }
 //!     }
 //! 
-//!     fn get_content(&self) -> &str {
-//!         match self {
-//!             Self::Text(t) => t,
-//!             Self::Number(t, _) => t
-//!         }
+//!     fn get_val(&self) -> &str {
+//!         &self.content
+//!     }
+//! 
+//!     fn gen_content(&self) -> String {
+//!         String::from(self.get_val())
 //!     }
 //! }
 //! ```
@@ -129,19 +130,27 @@
 //! And then use it to parse the tree:
 //! 
 //! ```
-//! let forest: Result<Forest<TypedNode>, String> = Forest::build(buf_reader);
+//! # use socarel::NodeContent;
+//! # pub struct IntegerNode;
+//! # impl NodeContent for IntegerNode {
+//! #    fn new(content: &str) -> Option<Self> { None }
+//! #    fn get_val(&self) -> &str { "" }
+//! #    fn gen_content(&self) -> String { String::new() }
+//! # }
+//! let model = tref::Model::<IntegerNode>::new();
 //! ```
 //! 
-//! The [`NodeContent::new()`] is called every time a node of the tree is parsed. It returns an [`Option`], that means it can be None, in which case the TREF parser will fail, returing an error.
+//! Now you can call [`Model::parse()`], etc. All nodes inside the tree will be of type `IntegerNode`.
+//! 
+//! The [`NodeContent::new()`][`socarel::NodeContent::new()`] is called every time a node of the tree is parsed. It returns an [`Option`], that means it can be None, in which case the TREF parser will fail, returing an error.
 
 mod parser;
 mod stack;
-mod tree;
-mod iter;
-mod forest;
+mod iface;
+mod error;
 
-pub use tree::{NodeContent, SimpleNode, TreeModel, TreeNode};
-pub use forest::*;
+pub use iface::*;
+pub use error::*;
 
 #[cfg(test)]
 mod tests;

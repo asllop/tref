@@ -5,8 +5,8 @@ pub struct NodeStack {
 
 #[derive(Debug)]
 pub struct NodeStackContent {
-    level: u32,
-    pub tree_position: u32
+    level: usize,
+    pub tree_position: usize
 }
 
 impl NodeStack {
@@ -20,7 +20,7 @@ impl NodeStack {
         self.buffer.push(obj);
     }
 
-    pub fn push_new(&mut self, level: u32, tree_position: u32) {
+    pub fn push_new(&mut self, level: usize, tree_position: usize) {
         self.buffer.push(NodeStackContent::new(level, tree_position));
     }
 
@@ -28,7 +28,7 @@ impl NodeStack {
         self.buffer.pop()
     }
 
-    pub fn pop_parent(&mut self, level: u32) -> Option<NodeStackContent> {
+    pub fn pop_parent(&mut self, level: usize) -> Option<NodeStackContent> {
         // Obtain data from stack until we get one node with a level lower than "level"
         while let Some(n_node) = self.pop() {
             if n_node.level < level {
@@ -48,7 +48,7 @@ impl NodeStack {
 }
 
 impl NodeStackContent {
-    pub fn new(level: u32, tree_position: u32) -> Self {
+    pub fn new(level: usize, tree_position: usize) -> Self {
         Self {
             level,
             tree_position
