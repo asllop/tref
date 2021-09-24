@@ -73,7 +73,7 @@
 //! }
 //! ```
 //! 
-//! The example above uses [`unlink_node`][`socarel::Tree::unlink_node`] to disconnect a node from the tree. To know more about how to manupulate trees, please check out the [`socarel`] crate documentation.
+//! The example above uses [`unlink_node()`][`socarel::Tree::unlink_node`] to disconnect a node from the tree. To know more about how to manupulate trees, please check out the [`socarel`] crate documentation.
 //! 
 //! # Dialects
 //! 
@@ -125,12 +125,22 @@
 //!         String::from(self.get_val())
 //!     }
 //! }
-//! 
-//! // And then use it to parse the tree:
-//! 
-//! let model = tref::Model::<IntegerNode>::new();
-//! // call model.parse(...), etc. Now all nodes inside the tree will be of type `IntegerNode`.
 //! ```
+//! 
+//! And then use it to parse the tree:
+//! 
+//! ```
+//! # use socarel::NodeContent;
+//! # pub struct IntegerNode;
+//! # impl NodeContent for IntegerNode {
+//! #    fn new(content: &str) -> Option<Self> { None }
+//! #    fn get_val(&self) -> &str { "" }
+//! #    fn gen_content(&self) -> String { String::new() }
+//! # }
+//! let model = tref::Model::<IntegerNode>::new();
+//! ```
+//! 
+//! Now you can call [`Model::parse()`], etc. All nodes inside the tree will be of type `IntegerNode`.
 //! 
 //! The [`NodeContent::new()`][`socarel::NodeContent::new()`] is called every time a node of the tree is parsed. It returns an [`Option`], that means it can be None, in which case the TREF parser will fail, returing an error.
 

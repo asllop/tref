@@ -3,7 +3,7 @@ name = "tref"
 version = "0.3.0"
 authors = ["Andreu Santaren Llop <andreu.santaren@gmail.com>"]
 edition = "2018"
-description = "Tree in Rows Elemental Format (TREF). Crate to generate, store, traverse and serialize trees."
+description = "Tree in Rows Elemental Format (TREF). Crate to parse, store and serialize trees."
 license = "MIT"
 repository = "https://github.com/asllop/tref"
 
@@ -11,4 +11,5 @@ repository = "https://github.com/asllop/tref"
 
 [dependencies]
 regex = "1"
+#TODO: use crates.io source instead of github
 socarel = { git = "https://github.com/asllop/socarel", version = "0.4.0" }
