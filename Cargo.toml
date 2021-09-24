@@ -11,5 +11,4 @@ repository = "https://github.com/asllop/tref"
 
 [dependencies]
 regex = "1"
-#TODO: use crates.io source instead of github
-socarel = { git = "https://github.com/asllop/socarel", version = "0.4.0" }
+socarel = "0.4.0"
