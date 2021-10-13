@@ -146,10 +146,10 @@
 
 mod parser;
 mod stack;
-mod iface;
+mod model;
 mod error;
 
-pub use iface::*;
+pub use model::*;
 pub use error::*;
 
 #[cfg(test)]

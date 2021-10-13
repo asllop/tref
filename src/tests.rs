@@ -22,8 +22,7 @@ fn tref_sample() -> BufReader<impl Read> {
 
 #[test]
 fn parse_valid_tref() {
-    let model = <Model>::new();
-    match model.parse(tref_sample()) {
+    match <Model>::parse(tref_sample()) {
         Ok(forest) => {
             if let Some(tree) = forest.get_tree("test_tree") {
                 for (i, (n, _)) in tree.iterators().sequential().enumerate() {
@@ -71,8 +70,7 @@ fn parse_missing_tree_id() {
     + + child_2\n";
     let tref_reader = BufReader::new(tref.as_bytes());
 
-    let model = <Model>::new();
-    if let Ok(_) = model.parse(tref_reader) {
+    if let Ok(_) = <Model>::parse(tref_reader) {
         panic!("Parsed without tree id");
     }
 }
@@ -86,8 +84,7 @@ fn parse_invalid_statement() {
     + + child_2\n";
     let tref_reader = BufReader::new(tref.as_bytes());
 
-    let model = <Model>::new();
-    if let Ok(_) = model.parse(tref_reader) {
+    if let Ok(_) = <Model>::parse(tref_reader) {
         panic!("Parsed an invalid statement");
     }
 }
@@ -101,16 +98,14 @@ fn parse_invalid_level() {
     + + child_2\n";
     let tref_reader = BufReader::new(tref.as_bytes());
 
-    let model = <Model>::new();
-    if let Ok(_) = model.parse(tref_reader) {
+    if let Ok(_) = <Model>::parse(tref_reader) {
         panic!("Parsed an invalid level");
     }
 }
 
 #[test]
 fn serialize_valid_tref() {
-    let model = <Model>::new();
-    match model.parse(tref_sample()) {
+    match <Model>::parse(tref_sample()) {
         Ok(mut forest) => {
             if let Some(tree) = forest.get_mut_tree("test_tree") {
                 tree.link_node("new_node", 0).expect("Could not link new node to root");
@@ -120,11 +115,11 @@ fn serialize_valid_tref() {
                 tree.unlink_node(6).expect("Could not unlink node 6");
 
                 let mut buf_writer = BufWriter::new(Vec::new());
-                match model.serialize(&forest, &mut buf_writer) {
+                match <Model>::serialize(&forest, &mut buf_writer) {
                     Ok(_) => {
                         let bytes = buf_writer.into_inner().unwrap();
                         let buf_reader = BufReader::new(&bytes[..]);
-                        match model.parse(buf_reader) {
+                        match <Model>::parse(buf_reader) {
                             Ok(forest_prima) => {
                                 if let Some(tree_prima) = forest_prima.get_tree("test_tree") {
                                     for (i, (n, _)) in tree_prima.iterators().sequential().enumerate() {
