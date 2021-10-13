@@ -1,7 +1,6 @@
 use std::io::{BufReader, BufWriter};
 use std::io::prelude::*;
-use socarel::{NodeContent};
-use crate::Model;
+use crate::*;
 
 //TODO:
 // - check serielizing multiple invalid docs
@@ -158,6 +157,86 @@ fn serialize_valid_tref() {
             }
             else {
                 panic!("Failed geting tree");
+            }
+        },
+        Err(e) => {
+            panic!("Failed parsing document: {}", e);
+        }
+    }
+}
+
+#[test]
+fn parse_dialect() {
+    #[derive(Debug)]
+    enum TypedNode {
+        Text(String),
+        Number(String, u32)
+    }
+
+    impl NodeContent for TypedNode {
+        fn new(content: &str) -> Option<Self> {
+            match content.trim().parse() {
+                Ok(num) => Some(Self::Number(String::from(content), num)),
+                Err(_) => Some(Self::Text(String::from(content)))
+            }
+        }
+
+        fn get_val(&self) -> &str {
+            match self {
+                Self::Text(t) => t,
+                Self::Number(t, _) => t
+            }
+        }
+
+        fn gen_content(&self) -> String {
+            String::from(self.get_val())
+        }
+    }
+
+    let tref =
+    "[test_tree]\n\
+    + root\n\
+    + + child\n\
+    + + + 2500\n\
+    + + + 130\n";
+
+    match Model::<TypedNode>::parse(BufReader::new(tref.as_bytes())) {
+        Ok(forest) => {
+            if let Some(tree) = forest.get_tree("test_tree") {
+                for (i, (n, _)) in tree.iterators().sequential().enumerate() {
+                    match i {
+                        0 => {
+                            if !n.get_content_ref().get_val().eq("root") { panic!("Wrong root content") }
+                            if let TypedNode::Number(_, _) = n.get_content_ref() {
+                                panic!("Wrong root node type")
+                            }
+                        },
+                        1 => {
+                            if !n.get_content_ref().get_val().eq("child") { panic!("Wrong child content"); }
+                            if let TypedNode::Number(_, _) = n.get_content_ref() {
+                                panic!("Wrong child node type")
+                            }
+                        },
+                        2 => {
+                            if !n.get_content_ref().get_val().eq("2500") { panic!("Wrong 2500 content"); }
+                            if let TypedNode::Text(_) = n.get_content_ref() {
+                                panic!("Wrong 1500 node type")
+                            }
+                        },
+                        3 => {
+                            if !n.get_content_ref().get_val().eq("130") { panic!("Wrong 130 content"); }
+                            if let TypedNode::Text(_) = n.get_content_ref() {
+                                panic!("Wrong 130 node type")
+                            }
+                        },
+                        _ => {
+                            panic!("Invalid node index");
+                        }
+                    }
+                }
+            }
+            else {
+                panic!("Failed getting tree");
             }
         },
         Err(e) => {

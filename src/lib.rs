@@ -35,12 +35,11 @@
 //! 
 //! ```
 //! use std::{fs::File, io::{BufReader, BufWriter}};
-//! use socarel::{NodeContent};
+//! use tref::*;
 //! 
 //! if let Ok(file) = File::open("file.tref") {
-//!     let model = <tref::Model>::new();
 //!     // Parse document
-//!     match model.parse(BufReader::new(file)) {
+//!     match <tref::Model>::parse(BufReader::new(file)) {
 //!         Ok(mut forest) => {
 //!             // Get the `my_tree` model.
 //!             if let Some(tree) = forest.get_mut_tree("my_tree") {
@@ -57,7 +56,7 @@
 //!             // Serialize the resulting forest back into a TREF file
 //!             let f = File::create("serialized.tref").expect("Unable to create file");
 //!             let mut buf_writer = BufWriter::new(f);
-//!             match model.serialize(&forest, &mut buf_writer) {
+//!             match <tref::Model>::serialize(&forest, &mut buf_writer) {
 //!                 Ok(num_lines) => {
 //!                     println!("Tree serialized correctly, num lines = {}", num_lines);
 //!                 },
@@ -92,7 +91,7 @@
 //! First we have to define a [`NodeContent`][`socarel::NodeContent`] to parse our custom nodes:
 //! 
 //! ```
-//! use socarel::NodeContent;
+//! # use tref::*;
 //! 
 //! pub struct IntegerNode {
 //!     num: i32,
@@ -131,16 +130,24 @@
 //! 
 //! ```
 //! # use socarel::NodeContent;
+//! # use std::io::BufReader;
 //! # pub struct IntegerNode;
 //! # impl NodeContent for IntegerNode {
 //! #    fn new(content: &str) -> Option<Self> { None }
 //! #    fn get_val(&self) -> &str { "" }
 //! #    fn gen_content(&self) -> String { String::new() }
 //! # }
-//! let model = tref::Model::<IntegerNode>::new();
+//! let tref =
+//! "[my_dialect_tree]\n\
+//! + 1000\n\
+//! + + 800\n\
+//! + + + 2500\n\
+//! + + + 130\n";
+//! 
+//! let forest = tref::Model::<IntegerNode>::parse(BufReader::new(tref.as_bytes()));
 //! ```
 //! 
-//! Now you can call [`Model::parse()`], etc. All nodes inside the tree will be of type `IntegerNode`.
+//! All nodes inside the tree will be of type `IntegerNode`.
 //! 
 //! The [`NodeContent::new()`][`socarel::NodeContent::new()`] is called every time a node of the tree is parsed. It returns an [`Option`], that means it can be None, in which case the TREF parser will fail, returing an error.
 
@@ -151,6 +158,7 @@ mod error;
 
 pub use model::*;
 pub use error::*;
+pub use socarel::NodeContent;
 
 #[cfg(test)]
 mod tests;
