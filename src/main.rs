@@ -5,7 +5,7 @@ fn main() {
     if let Ok(file) = File::open("file.tref") {
         match <TrefModel>::parse(BufReader::new(file)) {
             Ok(forest) => {
-                if let Some(tree) = forest.get_tree("my_tree") {
+                if let Some(tree) = forest.get_tree("My Original Tree!") {
                     println!("my_tree = {:#?}", tree);
                 }
 

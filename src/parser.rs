@@ -28,8 +28,8 @@ impl TreeParser {
     /// Create a new tree parser.
     pub fn new() -> Self {
         Self {
-            tree_id_matcher: Regex::new(r"^\[[A-Za-z0-9_]+\]$").unwrap(),
-            tree_id_finder: Regex::new(r"[A-Za-z0-9_]+").unwrap(),
+            tree_id_matcher: Regex::new(r"^\[[^\[\]]+\]$").unwrap(),
+            tree_id_finder: Regex::new(r"[^\[\]]+").unwrap(),
             node_matcher: Regex::new(r"^(\+ )+[^\+ ].*$").unwrap(),
             node_finder: Regex::new(r"(\+ )+").unwrap(),
             node_level_finder: Regex::new(r"(\+ )").unwrap(),
