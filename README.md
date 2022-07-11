@@ -1,6 +1,6 @@
 # Tree in Rows Elemental Format
 
-TREF is a plain text file format to describe trees in a human readable way. There are formats already to describe trees, which the most widely used is [Newick](https://en.wikipedia.org/wiki/Newick_format). The problem with Newick is that it is hard to write, but it is even harder to read. Other tree formats exist, like [PhyloXML](https://en.wikipedia.org/wiki/PhyloXML) and [Nexus](https://en.wikipedia.org/wiki/Nexus_file), but are verbose, complex and very specialized in bioinformatics.
+TREF is a plain text file format to describe trees in a human readable way. There are other formats to describe trees, which the most widely used is [Newick](https://en.wikipedia.org/wiki/Newick_format). The problem with Newick is that it is too messy, is hard to write and read by a human and easy to make mistakes. Other tree formats like [PhyloXML](https://en.wikipedia.org/wiki/PhyloXML) and [Nexus](https://en.wikipedia.org/wiki/Nexus_file) are verbose, complex and very specialized in bioinformatics.
 
 With TREF a human can write a tree and understand the structure by having a quick look, because it is designed to be both easy to read for humans and easy to parse for machines.
 
