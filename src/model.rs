@@ -6,16 +6,9 @@ use crate::parser::*;
 use crate::error::*;
 
 /// Document interaction model.
-pub struct Model<T: NodeContent = RawNode> {
-    phantom: PhantomData<T>
-}
+pub struct Model<T: NodeContent = RawNode>(PhantomData<T>);
 
 impl<T: NodeContent> Model<T> {
-    /// Create new interface model.
-    pub fn new() -> Self {
-        Model { phantom: PhantomData }
-    }
-
     /// Parse TREF document.
     /// 
     /// # Arguments
@@ -26,7 +19,7 @@ impl<T: NodeContent> Model<T> {
     /// 
     /// * A [`Result`] with a [`Forest`] or a [`ParseTreeError`].
     ///
-    pub fn parse(&self, reader: BufReader<impl Read>) -> Result<Forest<T>, ParseTreeError> {
+    pub fn parse(reader: BufReader<impl Read>) -> Result<Forest<T>, ParseTreeError> {
         let parser = TreeParser::new();
         let mut stack = NodeStack::new();
         let mut prev_level = 0;
@@ -116,7 +109,7 @@ impl<T: NodeContent> Model<T> {
     /// 
     /// * A [`Result`] with a number of lines writen or a [`SerializeTreeError`].
     /// 
-    pub fn serialize(&self, forest: &Forest<T>, writer: &mut BufWriter<impl Write>) -> Result<usize, SerializeTreeError> {
+    pub fn serialize(forest: &Forest<T>, writer: &mut BufWriter<impl Write>) -> Result<usize, SerializeTreeError> {
         let parser = TreeParser::new();
         let mut num_lines_writen = 0;
         for (tree_id, _) in forest.iter() {

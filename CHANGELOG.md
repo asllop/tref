@@ -3,6 +3,17 @@
 
 All notable changes to the TREF project will be documented in this file.
 
+## [0.4.0] - 2022/07/12
+
+### Update
+
+- Tree ID now can contain any character.
+- Improved model interface.
+
+### Add
+
+- Dialect tests.
+
 ## [0.3.0] - 2021/09/23
 
 ### Update
